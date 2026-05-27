@@ -1,0 +1,3668 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>modelagem_fidc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --lime:#80e506;
+  --lime-deep:#a5ff20;
+  --lime-soft:rgba(128,229,6,.12);
+
+  --bg:#0a0a0a;
+  --bg-2:#141414;
+  --bg-3:#1d1d1d;
+  --panel:#161616;
+  --line:#272727;
+  --line-2:#3a3a3a;
+
+  --ink:#f0efe8;
+  --ink-2:#a8a89e;
+  --ink-3:#6e6e66;
+  --ink-4:#454541;
+
+  --ok:#7adb8f;
+  --warn:#ffa040;
+  --bad:#ff5a5a;
+
+  --senior:#5fa3e0;
+  --mez:#e8c060;
+  --mezesp:#e89060;
+  --sub:#b870ff;
+
+  --mono:'JetBrains Mono', ui-monospace, monospace;
+  --serif:'Newsreader', Georgia, serif;
+  --sans:'DM Sans', system-ui, sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{
+  background:var(--bg);color:var(--ink);
+  font-family:var(--sans);font-size:14px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+body{
+  min-height:100vh;padding:0 0 80px;
+  background-image:
+    radial-gradient(circle at 12% 0%, rgba(128,229,6,.05), transparent 45%),
+    radial-gradient(circle at 88% 100%, rgba(95,163,224,.04), transparent 50%);
+}
+
+/* === HEADER === */
+.topbar{
+  border-bottom:1px solid var(--line);
+  padding:18px 36px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(10,10,10,.85);
+  backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:100;
+}
+.brand{display:flex;align-items:baseline;gap:18px}
+.brand .logo{
+  font-family:var(--sans);
+  font-weight:700;font-size:22px;
+  letter-spacing:-.02em;
+  color:var(--ink);
+}
+.brand .logo i{font-style:normal;color:var(--lime)}
+.brand .logo::after{content:"_";color:var(--lime);margin-left:1px}
+.brand .div{width:1px;height:18px;background:var(--line-2)}
+.brand .sub{
+  font-family:var(--mono);font-size:11px;
+  color:var(--ink-3);letter-spacing:.04em;
+  text-transform:lowercase;
+}
+.actions{display:flex;gap:8px;align-items:center}
+.action-btn{
+  background:transparent;border:1px solid var(--line-2);
+  color:var(--ink);padding:8px 14px;font-family:var(--sans);
+  font-size:12px;font-weight:500;cursor:pointer;border-radius:2px;
+  letter-spacing:.02em;transition:all .15s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.action-btn:hover{background:var(--bg-3);border-color:var(--ink-3)}
+.action-btn.primary{background:var(--lime);border-color:var(--lime);color:var(--bg)}
+.action-btn.primary:hover{background:var(--lime-deep);border-color:var(--lime-deep)}
+.action-btn svg{width:13px;height:13px}
+.version{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.1em;margin-left:8px}
+
+/* === TABS === */
+.tabs{
+  display:flex;gap:0;
+  border-bottom:1px solid var(--line);
+  padding:0 36px;
+  overflow-x:auto;
+  background:var(--bg);
+  position:sticky;top:65px;z-index:99;
+}
+.tab{
+  background:none;border:none;color:var(--ink-3);
+  padding:14px 18px;cursor:pointer;
+  font-family:var(--sans);font-size:13px;font-weight:500;
+  border-bottom:2px solid transparent;
+  transition:all .15s;
+  display:flex;align-items:center;gap:8px;
+  white-space:nowrap;
+  text-transform:lowercase;
+  letter-spacing:.01em;
+}
+.tab .num{font-family:var(--mono);font-size:10px;color:var(--ink-4);opacity:.9}
+.tab:hover{color:var(--ink-2)}
+.tab.active{color:var(--ink);border-bottom-color:var(--lime)}
+.tab.active .num{color:var(--lime);opacity:1}
+
+/* === LAYOUT === */
+.wrap{padding:36px 36px;max-width:1480px;margin:0 auto}
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.panel-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--line);
+}
+.panel-head h2{
+  font-family:var(--serif);
+  font-weight:500;
+  font-size:34px;letter-spacing:-.02em;
+  color:var(--ink);
+}
+.panel-head h2 b{font-weight:600}
+.panel-head h2::after{content:"_";color:var(--lime);margin-left:1px}
+.panel-head .pill{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  color:var(--ink-3);text-transform:uppercase;
+}
+
+/* === GRID === */
+.grid{display:grid;gap:18px}
+.g-2{grid-template-columns:repeat(2,1fr)}
+.g-3{grid-template-columns:repeat(3,1fr)}
+.g-4{grid-template-columns:repeat(4,1fr)}
+.g-12-8{grid-template-columns:7fr 5fr}
+.g-8-4{grid-template-columns:2fr 1fr}
+@media(max-width:1100px){.g-3,.g-4,.g-12-8,.g-8-4{grid-template-columns:1fr}.g-2{grid-template-columns:1fr}}
+
+/* === CARDS === */
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:22px;
+}
+.card.tight{padding:14px}
+.card-title{
+  font-family:var(--mono);font-size:10px;letter-spacing:.15em;
+  color:var(--ink-3);text-transform:lowercase;margin-bottom:2px;
+}
+.card-title::after{content:"_";color:var(--lime);margin-left:1px}
+.card-sub{font-size:12px;color:var(--ink-2);margin-bottom:16px}
+.card h3{
+  font-family:var(--serif);font-weight:500;font-size:20px;
+  margin-bottom:2px;letter-spacing:-.01em;color:var(--ink);
+}
+.section-label{
+  font-family:var(--mono);font-size:10px;letter-spacing:.15em;
+  color:var(--ink-3);text-transform:lowercase;margin-bottom:10px;
+}
+.section-label::after{content:"_";color:var(--lime);margin-left:1px}
+
+/* === INPUTS === */
+.field{margin-bottom:14px}
+.field-label{
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  color:var(--ink-2);margin-bottom:6px;
+  text-transform:lowercase;
+}
+.field-label .val{color:var(--lime);font-weight:600}
+.field input[type=text],
+.field input[type=number],
+.field select,
+.field textarea{
+  width:100%;
+  background:var(--bg-2);
+  border:1px solid var(--line);
+  color:var(--ink);
+  padding:8px 11px;
+  font-family:var(--mono);font-size:13px;
+  border-radius:2px;
+  transition:border-color .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--lime)}
+.field input[type=range]{
+  -webkit-appearance:none;width:100%;
+  height:3px;background:var(--line-2);border-radius:3px;outline:none;
+}
+.field input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;
+  background:var(--lime);border-radius:50%;cursor:pointer;
+  border:2px solid var(--bg);
+}
+.field input[type=range]::-moz-range-thumb{
+  width:14px;height:14px;background:var(--lime);border-radius:50%;
+  cursor:pointer;border:2px solid var(--bg);
+}
+.inline-input{
+  background:transparent;border:none;border-bottom:1px dashed var(--line-2);
+  color:var(--ink);font-family:var(--mono);font-size:12px;
+  padding:2px 0;width:100%;
+}
+.inline-input:focus{outline:none;border-bottom-color:var(--lime)}
+
+/* === STAT === */
+.stat{
+  padding:16px;background:var(--bg-2);
+  border:1px solid var(--line);border-radius:2px;
+}
+.stat .lbl{
+  font-family:var(--mono);font-size:9px;letter-spacing:.13em;
+  color:var(--ink-3);margin-bottom:4px;
+  text-transform:lowercase;
+}
+.stat .val{
+  font-family:var(--serif);font-weight:500;font-size:26px;
+  letter-spacing:-.02em;color:var(--ink);
+}
+.stat .val.mono{font-family:var(--mono);font-size:18px}
+.stat .sub{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:4px}
+.stat.accent{border-color:var(--lime);background:var(--lime-soft)}
+.stat.accent .val{color:var(--lime-deep)}
+.stat.warn .val{color:var(--warn)}
+.stat.ok .val{color:var(--ok)}
+
+/* === WATERFALL === */
+.waterfall{display:flex;flex-direction:column;gap:8px}
+.wf-row{
+  display:grid;grid-template-columns:80px 1fr;gap:14px;align-items:center;
+}
+.wf-pri{
+  font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  color:var(--ink-3);text-align:right;
+  text-transform:lowercase;
+}
+.wf-bar{
+  padding:14px 18px;border-radius:2px;
+  display:flex;justify-content:space-between;align-items:center;
+  border:1px solid;background:var(--bg-2);
+  position:relative;
+}
+.wf-bar.senior{border-color:rgba(95,163,224,.5);background:linear-gradient(90deg,rgba(95,163,224,.1),transparent)}
+.wf-bar.mez{border-color:rgba(232,192,96,.5);background:linear-gradient(90deg,rgba(232,192,96,.1),transparent)}
+.wf-bar.mezesp{border-color:rgba(232,144,96,.5);background:linear-gradient(90deg,rgba(232,144,96,.1),transparent)}
+.wf-bar.sub{border-color:rgba(184,112,255,.5);background:linear-gradient(90deg,rgba(184,112,255,.1),transparent)}
+.wf-bar .name{font-weight:600;font-size:14px}
+.wf-bar .desc{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:2px}
+.wf-bar .right{text-align:right}
+.wf-bar .pct{font-family:var(--serif);font-weight:600;font-size:18px}
+.wf-bar .amt{font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.wf-arrow{text-align:center;color:var(--ink-4);font-size:11px;padding:2px 0;grid-column:2}
+
+/* === SERVICES === */
+.services{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.svc{
+  padding:12px 14px;background:var(--bg-2);
+  border:1px solid var(--line);border-radius:2px;
+}
+.svc .role{
+  font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+  color:var(--ink-3);margin-bottom:4px;
+  text-transform:lowercase;
+}
+.svc .role::after{content:"_";color:var(--lime);margin-left:1px}
+
+/* === SCENARIOS === */
+.scenarios{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.sc-btn{
+  background:var(--bg-2);border:1px solid var(--line);
+  color:var(--ink);padding:12px 14px;cursor:pointer;border-radius:2px;
+  text-align:left;transition:all .15s;font-family:var(--sans);
+}
+.sc-btn:hover{border-color:var(--ink-3);background:var(--bg-3)}
+.sc-btn .name{font-weight:600;font-size:13px;margin-bottom:2px;text-transform:lowercase}
+.sc-btn .desc{font-family:var(--mono);font-size:10px;color:var(--ink-3);letter-spacing:.04em}
+.sc-btn.base .name::before{content:"◐ "}
+.sc-btn.opt .name{color:var(--ok)}
+.sc-btn.opt .name::before{content:"▲ "}
+.sc-btn.str .name{color:var(--warn)}
+.sc-btn.str .name::before{content:"▼ "}
+.sc-btn.def .name{color:var(--bad)}
+.sc-btn.def .name::before{content:"× "}
+.sc-btn.active{border-color:var(--lime);background:var(--lime-soft)}
+
+/* === FEES === */
+.fee-row{
+  display:grid;grid-template-columns:1.4fr 1.4fr 200px;
+  padding:11px 0;border-bottom:1px dashed var(--line);
+  align-items:center;gap:14px;
+}
+.fee-row.computed-row{align-items:flex-start;padding:14px 0}
+.fee-row:last-child{border-bottom:none}
+.fee-row.total{
+  border-top:1px solid var(--lime);border-bottom:none;
+  padding-top:14px;margin-top:8px;
+}
+.fee-desc{font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+.fee-val{font-family:var(--mono);font-size:14px;text-align:right;color:var(--ink)}
+.fee-val.computed{color:var(--lime);font-weight:600}
+.fee-row.total .fee-val{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink)}
+.fee-row.total .fee-name{font-weight:600;font-size:14px}
+.fee-row .fee-name input,
+.fee-row .fee-val input{
+  background:transparent;border:none;border-bottom:1px dashed var(--line-2);
+  padding:2px 0;width:100%;color:var(--ink);
+}
+.fee-row .fee-name input{font-family:var(--sans);font-size:13px;font-weight:500}
+.fee-row .fee-val input{font-family:var(--mono);font-size:14px;text-align:right;font-weight:500;color:var(--lime)}
+.fee-row .fee-name input:focus,
+.fee-row .fee-val input:focus{outline:none;border-bottom-color:var(--lime)}
+
+/* === DESPESAS RECORRENTES TABLE === */
+.rec-tbl{
+  display:grid;
+  grid-template-columns: 1.5fr auto auto 110px;
+  gap:0 14px;
+  align-items:center;
+}
+.rec-head{display:contents}
+.rec-head > div{
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  color:var(--ink-3);text-transform:lowercase;
+  padding:8px 0 10px;border-bottom:1px solid var(--line);
+}
+.rec-head > div:nth-child(1){text-align:left}
+.rec-head > div:nth-child(2),
+.rec-head > div:nth-child(3){text-align:right}
+.rec-head > div:nth-child(4){text-align:right}
+.rec-row{display:contents}
+.rec-row > .rec-name,
+.rec-row > .rec-cell{
+  padding:9px 0;
+  border-bottom:1px dashed var(--line);
+  display:flex;align-items:center;
+  font-family:var(--mono);font-size:12px;color:var(--ink);
+}
+.rec-row > .rec-name{justify-content:flex-start}
+.rec-row > .rec-cell{justify-content:flex-end;white-space:nowrap}
+.rec-row > .rec-cell.rec-out{
+  color:var(--lime);font-weight:600;font-family:var(--mono);font-size:13px;
+  justify-content:flex-end;
+}
+.rec-row > .rec-name input{
+  background:transparent;border:none;border-bottom:1px dashed var(--line-2);
+  padding:3px 0;width:100%;color:var(--ink);
+  font-family:var(--sans);font-size:13px;font-weight:500;
+}
+.rec-row > .rec-name input:focus{outline:none;border-bottom-color:var(--lime)}
+.rec-row > .rec-cell input{
+  background:transparent;border:none;border-bottom:1px dashed var(--line-2);
+  padding:3px 0;color:var(--ink);
+  font-family:var(--mono);font-size:12px;text-align:right;
+}
+.rec-row > .rec-cell input:focus{outline:none;border-bottom-color:var(--lime)}
+.rec-row:last-child > .rec-name,
+.rec-row:last-child > .rec-cell{border-bottom:none}
+
+/* === CASHFLOW TABLE === */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:2px;background:var(--bg-2)}
+table.cf{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+table.cf th{
+  background:var(--bg-3);
+  text-align:right;padding:10px 12px;
+  font-size:9px;letter-spacing:.1em;color:var(--ink-3);
+  text-transform:lowercase;font-weight:500;
+  border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:1;
+}
+table.cf th:first-child{text-align:left}
+table.cf td{
+  padding:7px 12px;text-align:right;
+  border-bottom:1px solid var(--line);
+  color:var(--ink-2);
+}
+table.cf td:first-child{text-align:left;color:var(--ink);font-weight:500}
+table.cf td.pos{color:var(--ok)}
+table.cf td.neg{color:var(--bad)}
+table.cf tr:hover td{background:rgba(255,255,255,.03)}
+
+/* === HEATMAP === */
+.heat-wrap{overflow-x:auto;background:var(--bg-2);padding:14px;border-radius:2px;border:1px solid var(--line)}
+table.heat{border-collapse:collapse;font-family:var(--mono);font-size:11px;margin:0 auto}
+table.heat th,table.heat td{padding:9px 10px;text-align:center;min-width:62px}
+table.heat th{
+  font-size:9px;letter-spacing:.08em;color:var(--ink-3);
+  text-transform:lowercase;font-weight:500;border-bottom:1px solid var(--line);
+}
+table.heat th:first-child,table.heat td:first-child{
+  background:var(--bg-3);font-weight:600;color:var(--ink);
+  border-right:1px solid var(--line);
+}
+table.heat td{font-weight:500}
+.heat-axis-label{
+  font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  color:var(--ink-3);text-transform:lowercase;margin-bottom:10px;
+}
+
+/* === CHECKLIST === */
+.checklist{display:flex;flex-direction:column;gap:5px}
+.check-phase{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--lime);text-transform:lowercase;
+  margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line);
+}
+.check-phase:first-child{margin-top:0}
+.check-item{
+  display:flex;gap:12px;padding:9px 12px;
+  background:var(--bg-2);border:1px solid var(--line);border-radius:2px;
+  cursor:pointer;transition:all .15s;
+  align-items:flex-start;
+}
+.check-item:hover{border-color:var(--ink-3)}
+.check-item.done{border-color:var(--lime);background:var(--lime-soft);opacity:.8}
+.check-item.done .check-name{text-decoration:line-through;color:var(--ink-2)}
+.check-item.critical .check-name::after{content:" ⚠";color:var(--warn);font-size:11px}
+.check-box{
+  width:14px;height:14px;border:1.5px solid var(--ink-3);
+  border-radius:2px;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;background:var(--bg-2);
+}
+.check-item.done .check-box{background:var(--lime);border-color:var(--lime);color:var(--bg)}
+.check-item.done .check-box::before{content:"✓"}
+.check-content{flex:1}
+.check-name{font-size:12px;font-weight:500}
+
+/* === PROGRESS === */
+.progress{
+  height:6px;background:var(--bg-3);border-radius:6px;overflow:hidden;
+  border:1px solid var(--line);
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--lime),var(--lime-deep));
+  transition:width .4s ease;
+}
+.progress-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.progress-row .num{font-family:var(--serif);font-weight:600;font-size:22px;color:var(--lime)}
+
+/* === PROPOSAL === */
+.proposal-out{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:2px;
+  padding:28px 32px;margin-top:18px;
+  font-family:var(--serif);line-height:1.7;color:var(--ink);
+}
+.proposal-out h4{
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+  color:var(--ink-3);text-transform:lowercase;margin:18px 0 8px;font-weight:500;
+}
+.proposal-out h4::after{content:"_";color:var(--lime);margin-left:1px}
+.proposal-out h4:first-child{margin-top:0}
+.proposal-out p{margin-bottom:10px}
+.proposal-out .pq{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:14px}
+.proposal-out .pq dt{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  color:var(--ink-3);text-transform:lowercase;margin-bottom:3px;
+}
+.proposal-out .pq dd{font-size:15px;font-weight:500}
+
+/* === DECOMP — TORNADO (eixo central) === */
+.decomp{display:flex;flex-direction:column;gap:6px;padding:8px 0}
+.dec-row{
+  display:grid;
+  grid-template-columns:80px 1fr 140px 1fr 80px;
+  gap:6px;align-items:center;
+}
+.dec-name{
+  font-family:var(--mono);font-size:11px;color:var(--ink-2);
+  letter-spacing:.04em;text-align:center;
+  padding:0 6px;
+  border-left:1px solid var(--ink-3);
+  border-right:1px solid var(--ink-3);
+  background:var(--bg-3);
+  height:22px;line-height:22px;
+}
+.dec-bar-side{height:18px;position:relative;display:flex}
+.dec-bar-side.left{justify-content:flex-end}
+.dec-bar-side.right{justify-content:flex-start}
+.dec-fill{
+  height:100%;transition:width .4s ease;
+  background:var(--bg-3);border:1px solid var(--line);
+}
+.dec-fill.pos{background:linear-gradient(90deg,var(--lime),var(--lime-deep));border-color:var(--lime)}
+.dec-fill.neg{background:linear-gradient(270deg,#d44848,var(--bad));border-color:var(--bad)}
+.dec-val{
+  font-family:var(--mono);font-size:11px;
+  font-weight:500;
+}
+.dec-val.pos{color:var(--ok);text-align:left}
+.dec-val.neg{color:var(--bad);text-align:right}
+
+/* === BUFFER === */
+.buffer-wrap{display:flex;flex-direction:column;gap:10px}
+.buf-row{display:grid;grid-template-columns:140px 1fr 100px;gap:12px;align-items:center}
+.buf-name{font-size:12px;font-weight:500}
+.buf-bar{height:26px;background:var(--bg-3);border-radius:2px;overflow:hidden;border:1px solid var(--line);position:relative}
+.buf-fill{height:100%;display:flex;align-items:center;padding:0 10px;font-family:var(--mono);font-size:10px;color:var(--bg);font-weight:700}
+.buf-fill.sub{background:var(--sub)}
+.buf-fill.mezesp{background:var(--mezesp)}
+.buf-fill.mez{background:var(--mez)}
+.buf-fill.senior{background:var(--senior)}
+.buf-val{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink-2)}
+
+/* === CHART === */
+.chart-wrap{background:var(--bg-2);border:1px solid var(--line);border-radius:2px;padding:18px;height:280px;position:relative}
+.chart-wrap.tall{height:360px}
+.chart-svg{width:100%;height:100%}
+.chart-legend{
+  display:flex;gap:18px;font-family:var(--mono);font-size:10px;
+  color:var(--ink-2);margin-top:8px;flex-wrap:wrap;
+}
+.chart-legend .leg{display:flex;align-items:center;gap:6px}
+.chart-legend .sw{width:10px;height:10px;border-radius:2px}
+
+/* === CCB === */
+.ccb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ccb-spec{
+  padding:14px;background:var(--bg-2);
+  border:1px solid var(--line);border-radius:2px;
+}
+.ccb-spec .lbl{
+  font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+  color:var(--ink-3);margin-bottom:4px;
+  text-transform:lowercase;
+}
+.ccb-spec .lbl::after{content:"_";color:var(--lime);margin-left:1px}
+.ccb-spec .val{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink)}
+
+/* === DI CURVE === */
+.di-tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+.di-tbl th{
+  text-align:left;padding:8px;font-size:9px;letter-spacing:.12em;
+  color:var(--ink-3);text-transform:lowercase;font-weight:500;
+  border-bottom:1px solid var(--line);
+}
+.di-tbl td{padding:4px 4px;border-bottom:1px solid var(--line)}
+.di-tbl td input{
+  width:100%;background:var(--bg-2);border:1px solid var(--line);
+  color:var(--ink);padding:6px 9px;font-family:var(--mono);font-size:12px;
+  border-radius:2px;
+}
+.di-tbl td input:focus{outline:none;border-color:var(--lime)}
+.di-tbl td.action{width:30px;text-align:center}
+.di-tbl .del-btn{
+  background:transparent;border:none;color:var(--ink-3);cursor:pointer;
+  padding:4px 6px;font-size:14px;border-radius:2px;
+}
+.di-tbl .del-btn:hover{color:var(--bad);background:var(--bg-3)}
+
+/* === SCROLLBARS === */
+::-webkit-scrollbar{height:8px;width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-3)}
+
+.note{
+  font-family:var(--mono);font-size:10px;color:var(--ink-3);
+  letter-spacing:.04em;margin-top:10px;line-height:1.6;
+}
+.note b{color:var(--lime);font-weight:500}
+
+input[type=file]{display:none}
+
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--ink);color:var(--bg);
+  padding:12px 18px;border-radius:2px;
+  font-family:var(--mono);font-size:12px;
+  z-index:200;opacity:0;transform:translateY(10px);
+  transition:all .25s ease;pointer-events:none;
+}
+.toast.show{opacity:1;transform:none}
+.toast.error{background:var(--bad);color:#fff}
+.toast.ok{background:var(--lime);color:var(--bg)}
+
+/* === MODAL === */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:300;display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-bg.show{display:flex}
+.modal{
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:3px;padding:24px;max-width:600px;width:90%;
+  max-height:80vh;overflow-y:auto;
+}
+.modal h3{
+  font-family:var(--serif);font-weight:500;font-size:20px;
+  margin-bottom:6px;color:var(--ink);
+}
+.modal .modal-sub{font-size:12px;color:var(--ink-2);margin-bottom:18px}
+.modal textarea{
+  width:100%;min-height:200px;background:var(--bg-2);
+  border:1px solid var(--line);color:var(--ink);
+  padding:10px;font-family:var(--mono);font-size:12px;
+  border-radius:2px;resize:vertical;
+}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">mosaico<i>fidc</i></div>
+    <div class="div"></div>
+    <div class="sub">modelagem_estruturação_de_fundos</div>
+  </div>
+  <div class="actions">
+    <button class="action-btn" id="btn_import" title="Importar JSON do projeto">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 11V2M4 7l4 4 4-4M2 13h12"/></svg>
+      importar
+    </button>
+    <button class="action-btn primary" id="btn_export" title="Exportar projeto como JSON">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v9M4 7l4 4 4-4M2 13h12" transform="rotate(180 8 7.5)"/></svg>
+      exportar
+    </button>
+    <input type="file" id="file_import" accept="application/json,.json">
+    <span class="version">v5.0</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-panel="p1"><span class="num">01</span> estrutura</button>
+  <button class="tab" data-panel="p2"><span class="num">02</span> modelagem</button>
+  <button class="tab" data-panel="p3"><span class="num">03</span> fees &amp; custos</button>
+  <button class="tab" data-panel="p4"><span class="num">04</span> ccb</button>
+  <button class="tab" data-panel="p5"><span class="num">05</span> curva di</button>
+  <button class="tab" data-panel="p6"><span class="num">06</span> fluxo &amp; gráficos</button>
+  <button class="tab" data-panel="p7"><span class="num">07</span> sensibilidade</button>
+  <button class="tab" data-panel="p8"><span class="num">08</span> roadmap</button>
+  <button class="tab" data-panel="p9"><span class="num">09</span> proposta</button>
+</nav>
+
+<main class="wrap">
+
+<!-- ========== ABA 1: ESTRUTURA ========== -->
+<section class="panel active" id="p1">
+  <div class="panel-head">
+    <h2>estrutura do <b>fundo</b></h2>
+    <span class="pill">aba 01 — ciclo de vida &amp; subordinação</span>
+  </div>
+
+  <div class="grid g-12-8">
+
+    <!-- ========== COLUNA ESQUERDA ========== -->
+    <div class="card">
+
+      <!-- CICLO DE VIDA -->
+      <div style="margin-bottom:22px">
+        <div class="section-label">ciclo de vida</div>
+
+        <div class="field">
+          <div class="field-label"><span>período de investimento (meses)</span><span class="val" id="v_invp">12</span></div>
+          <input type="range" id="i_invp" min="3" max="24" step="1" value="12">
+        </div>
+
+        <div class="field">
+          <div class="field-label"><span>cap por captação (% do pl alvo)</span><span class="val" id="v_invcap">100%</span></div>
+          <input type="range" id="i_invcap" min="20" max="100" step="5" value="100">
+          <div class="note">a captação encerra quando atingir o nº de meses OU o % do PL alvo — o que vier primeiro. depois entra em cash sweep.</div>
+        </div>
+
+        <div class="field" style="display:flex;align-items:center;gap:10px;padding:10px 0">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--ink-2)">
+            <input type="checkbox" id="i_jrpp" checked>
+            <span>amortizar sub júnior <b style="color:var(--lime)">pari passu</b> com as demais</span>
+          </label>
+        </div>
+
+        <div class="field">
+          <div class="field-label"><span>caixa mínimo (% do pl alvo)</span><span class="val" id="v_cashmin">2,00%</span></div>
+          <input type="range" id="i_cashmin" min="0" max="10" step="0.5" value="2">
+        </div>
+      </div>
+
+      <!-- VOLUME & SUBORDINAÇÃO -->
+      <div style="margin-bottom:22px">
+        <div class="section-label">volume &amp; subordinação</div>
+        <div class="field">
+          <div class="field-label"><span>pl alvo (r$ mm)</span><span class="val" id="v_pl">R$ 100MM</span></div>
+          <input type="range" id="i_pl" min="20" max="500" step="5" value="100">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>% sub júnior (mín)</span><span class="val" id="v_sub">20,00%</span></div>
+          <input type="range" id="i_sub" min="5" max="50" step="0.5" value="20">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>% cotas mezanino</span><span class="val" id="v_mez">10,00%</span></div>
+          <input type="range" id="i_mez" min="0" max="50" step="0.5" value="10">
+        </div>
+
+        <div class="field" style="padding:10px 0;border-top:1px dashed var(--line);margin-top:8px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--ink-2)">
+            <input type="checkbox" id="i_mezb_enable">
+            <span>incluir cotas <b style="color:var(--mezesp)">mezanino B</b></span>
+          </label>
+        </div>
+        <div id="mezb_fields" style="display:none">
+          <div class="field">
+            <div class="field-label"><span>% mezanino B</span><span class="val" id="v_mezesp">0,00%</span></div>
+            <input type="range" id="i_mezesp" min="0" max="20" step="0.5" value="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- REMUNERAÇÃO -->
+      <div style="margin-bottom:8px">
+        <div class="section-label">remuneração das cotas</div>
+        <div class="field">
+          <div class="field-label"><span>spread sênior (% a.a.)</span><span class="val" id="v_ss">5,00%</span></div>
+          <input type="range" id="i_ss" min="0" max="12" step="0.25" value="5">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>spread mezanino (% a.a.)</span><span class="val" id="v_sm">7,00%</span></div>
+          <input type="range" id="i_sm" min="0" max="15" step="0.25" value="7">
+        </div>
+        <div class="field" id="sme_field" style="display:none">
+          <div class="field-label"><span>spread mezanino b (% a.a.)</span><span class="val" id="v_sme">9,00%</span></div>
+          <input type="range" id="i_sme" min="0" max="18" step="0.25" value="9">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>cdi de referência (% a.a.)</span><span class="val" id="v_cdi">14,00%</span></div>
+          <input type="range" id="i_cdi" min="5" max="20" step="0.25" value="14">
+          <div class="note" style="margin-top:6px">para juros futuros realistas use a aba <b>curva di</b> — o cdi acima entra apenas como fallback</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== COLUNA DIREITA ========== -->
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <!-- IDENTIFICAÇÃO + PRESTADORES -->
+      <div class="card">
+        <h3>identificação &amp; prestadores</h3>
+        <div class="card-sub">originador e ecossistema do fundo</div>
+
+        <div style="margin-top:14px">
+          <div class="section-label" style="margin-bottom:8px">identificação</div>
+          <div class="services">
+            <div class="svc"><div class="role">originador</div><input class="inline-input" type="text" id="i_originador" placeholder="ex: Originador S.A."></div>
+            <div class="svc"><div class="role">nome do fundo</div><input class="inline-input" type="text" id="i_fundo" placeholder="ex: FIDC Multissetorial"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px">
+          <div class="section-label" style="margin-bottom:8px">prestadores de serviço</div>
+          <div class="services">
+            <div class="svc"><div class="role">gestor</div><input class="inline-input" type="text" id="s_gestor" placeholder="a definir"></div>
+            <div class="svc"><div class="role">consultor</div><input class="inline-input" type="text" id="s_consultor" placeholder="a definir"></div>
+            <div class="svc"><div class="role">administrador + custodiante</div><input class="inline-input" type="text" id="s_adm" placeholder="a definir"></div>
+            <div class="svc"><div class="role">estruturador</div><input class="inline-input" type="text" id="s_estruturador" placeholder="a definir"></div>
+            <div class="svc"><div class="role">assessor legal</div><input class="inline-input" type="text" id="s_legal" placeholder="a definir"></div>
+            <div class="svc"><div class="role">agente de cobrança</div><input class="inline-input" type="text" id="s_cob" placeholder="a definir"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARDS DE PL -->
+      <div class="grid g-2">
+        <div class="stat">
+          <div class="lbl">pl sênior</div>
+          <div class="val mono" id="r_pl_sen">—</div>
+          <div class="sub" id="r_pct_sen">—% do PL · sub mín. —%</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">pl mezanino</div>
+          <div class="val mono" id="r_pl_mez">—</div>
+          <div class="sub" id="r_pct_mez">—% do PL · sub mín. —%</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">pl sub júnior</div>
+          <div class="val mono" id="r_pl_sub">—</div>
+          <div class="sub" id="r_pct_sub">—% do PL</div>
+        </div>
+        <div class="stat accent">
+          <div class="lbl">rent. sub estimada (a.a.)</div>
+          <div class="val" id="r_rent_sub">—</div>
+          <div class="sub" id="r_rent_sub_sub">— do CDI</div>
+        </div>
+      </div>
+
+      <!-- DIAGRAMA -->
+      <div class="card">
+        <h3>diagrama de subordinação</h3>
+        <div class="card-sub">hierarquia de absorção de perdas</div>
+        <div class="waterfall">
+          <div class="wf-row">
+            <div class="wf-pri">1ª prioridade</div>
+            <div class="wf-bar senior">
+              <div><div class="name">Cotas Sênior</div><div class="desc">CDI + <span id="d_ss">5</span>% a.a.</div></div>
+              <div class="right"><div class="pct" id="d_pct_sen">—</div><div class="amt" id="d_amt_sen">—</div></div>
+            </div>
+          </div>
+          <div class="wf-arrow">↓ absorção primária</div>
+          <div class="wf-row">
+            <div class="wf-pri">2ª prioridade</div>
+            <div class="wf-bar mez">
+              <div><div class="name">Cotas Mezanino</div><div class="desc">CDI + <span id="d_sm">7</span>% a.a.</div></div>
+              <div class="right"><div class="pct" id="d_pct_mez">—</div><div class="amt" id="d_amt_mez">—</div></div>
+            </div>
+          </div>
+          <div class="wf-row" id="wf_mezesp_row">
+            <div class="wf-pri">↓ 3ª prioridade</div>
+            <div class="wf-bar mezesp">
+              <div><div class="name">Cotas Mezanino B</div><div class="desc">CDI + <span id="d_sme">9</span>% a.a.</div></div>
+              <div class="right"><div class="pct" id="d_pct_mezesp">—</div><div class="amt" id="d_amt_mezesp">—</div></div>
+            </div>
+          </div>
+          <div class="wf-arrow">↓</div>
+          <div class="wf-row">
+            <div class="wf-pri">última / perdas</div>
+            <div class="wf-bar sub">
+              <div><div class="name">Sub Júnior (Originador)</div><div class="desc">Resíduo · 1ª a absorver perdas</div></div>
+              <div class="right"><div class="pct" id="d_pct_sub">—</div><div class="amt" id="d_amt_sub">—</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== ABA 2: MODELAGEM ========== -->
+<section class="panel" id="p2">
+  <div class="panel-head">
+    <h2>modelagem <b>financeira</b></h2>
+    <span class="pill">aba 02 — premissas &amp; resultado</span>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-title">cenários pré-definidos</div>
+    <div class="card-sub">clique para aplicar premissas — depois ajuste à vontade, alterações ficam persistidas até reload</div>
+    <div class="scenarios">
+      <button class="sc-btn base" data-sc="base"><div class="name">base</div><div class="desc">inadimplência padrão</div></button>
+      <button class="sc-btn opt" data-sc="opt"><div class="name">otimista</div><div class="desc">baixa inadimplência</div></button>
+      <button class="sc-btn str" data-sc="str"><div class="name">stress</div><div class="desc">inadimplência elevada</div></button>
+      <button class="sc-btn def" data-sc="def"><div class="name">default</div><div class="desc">perda concentrada</div></button>
+    </div>
+  </div>
+
+  <div class="grid g-12-8">
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <div class="card">
+        <div class="card-title">parâmetros operacionais</div>
+        <div class="grid g-2" style="margin-top:14px">
+          <div class="field">
+            <div class="field-label"><span>taxa dc (a.m.)</span><span class="val" id="v_dc">2,20%</span></div>
+            <input type="range" id="i_dc" min="0.5" max="6" step="0.05" value="2.20">
+          </div>
+          <div class="field">
+            <div class="field-label"><span>% alocação em dc</span><span class="val" id="v_alc">95,00%</span></div>
+            <input type="range" id="i_alc" min="50" max="100" step="1" value="95">
+          </div>
+          <div class="field">
+            <div class="field-label"><span>rentab. caixa (% do cdi)</span><span class="val" id="v_cx">90,00%</span></div>
+            <input type="range" id="i_cx" min="50" max="110" step="1" value="90">
+          </div>
+          <div class="field">
+            <div class="field-label"><span>pdd (% a.m. da carteira)</span><span class="val" id="v_pdd">0,15%</span></div>
+            <input type="range" id="i_pdd" min="0" max="3" step="0.01" value="0.15">
+          </div>
+          <div class="field">
+            <div class="field-label"><span>taxa recompra (%)</span><span class="val" id="v_rec">50,00%</span></div>
+            <input type="range" id="i_rec" min="0" max="100" step="1" value="50">
+          </div>
+          <div class="field">
+            <div class="field-label"><span>write-off (%)</span><span class="val" id="v_wo">0,00%</span></div>
+            <input type="range" id="i_wo" min="0" max="10" step="0.1" value="0">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <div class="grid g-2">
+        <div class="stat accent">
+          <div class="lbl">resultado sub (a.m.)</div>
+          <div class="val" id="m_rent_am">—</div>
+          <div class="sub" id="m_res_am">res. mensal: —</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">anualizado</div>
+          <div class="val mono" id="m_rent_aa">—</div>
+          <div class="sub" id="m_pct_cdi">% do cdi: —</div>
+        </div>
+        <div class="stat warn">
+          <div class="lbl">impacto pdd na sub</div>
+          <div class="val mono" id="m_imp_pdd">—</div>
+          <div class="sub">bps / mês</div>
+        </div>
+        <div class="stat ok">
+          <div class="lbl">sub s/ pdd</div>
+          <div class="val mono" id="m_sub_sp">—</div>
+          <div class="sub">sub bruta</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>decomposição do resultado</h3>
+        <div class="card-sub">contribuição mensal de cada componente da cota sub</div>
+        <div class="decomp" id="decomp"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ========== ABA 3: FEES & CUSTOS ========== -->
+<section class="panel" id="p3">
+  <div class="panel-head">
+    <h2>fees &amp; <b>custos</b></h2>
+    <span class="pill">aba 03 — estruturação &amp; recorrência</span>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card">
+      <h3>custos de estruturação <span style="font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400">(one-time)</span></h3>
+      <div class="card-sub">nomes e valores editáveis — defina conforme a sua operação</div>
+      <div id="fees_one" style="margin-top:8px"></div>
+      <div class="fee-row total">
+        <div class="fee-name">total one-time</div>
+        <div class="fee-desc">investimento inicial</div>
+        <div class="fee-val" id="sum_one">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>despesas recorrentes <span style="font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400">(mensais)</span></h3>
+      <div class="card-sub">valores mensais — anualizado calculado automaticamente</div>
+      <div id="fees_rec" style="margin-top:8px"></div>
+      <div class="fee-row total">
+        <div class="fee-name">total recorrente (mensal)</div>
+        <div class="fee-desc" id="sum_rec_aa">— a.a.</div>
+        <div class="fee-val" id="sum_rec">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3>resumo consolidado</h3>
+    <div class="card-sub">visão integrada do investimento</div>
+    <div class="grid g-4" style="margin-top:14px">
+      <div class="stat"><div class="lbl">total one-time</div><div class="val mono" id="r_one" style="font-size:20px">—</div></div>
+      <div class="stat"><div class="lbl">recorrente / mês</div><div class="val mono" id="r_rec_m" style="font-size:20px">—</div></div>
+      <div class="stat"><div class="lbl">recorrente / ano</div><div class="val mono" id="r_rec_a" style="font-size:20px">—</div></div>
+      <div class="stat accent"><div class="lbl">investimento 1º ano</div><div class="val" id="r_y1">—</div><div class="sub">one-time + recorrente</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ABA 4: CCB ========== -->
+<section class="panel" id="p4">
+  <div class="panel-head">
+    <h2>modelagem <b>CCB</b></h2>
+    <span class="pill">aba 04 — cédula de crédito bancário · ágio · pré-pagamento</span>
+  </div>
+
+  <div class="grid g-12-8">
+
+    <div class="card">
+      <div class="card-title">parâmetros da CCB</div>
+      <div class="card-sub">configure o exemplar para simulação</div>
+
+      <div style="margin-bottom:18px">
+        <div class="section-label">partes</div>
+        <div class="field">
+          <div class="field-label"><span>devedor / emitente</span></div>
+          <input type="text" id="ccb_devedor" value="Emitente S.A.">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>credor / cessionário</span></div>
+          <input type="text" id="ccb_credor" value="FIDC / Banco">
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px">
+        <div class="section-label">empréstimo</div>
+        <div class="field">
+          <div class="field-label"><span>empréstimo (r$)</span><span class="val" id="v_ccb_p">R$ 100.000</span></div>
+          <input type="range" id="i_ccb_p" min="200" max="200000" step="100" value="100000">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>taxa de juros (% a.m.)</span><span class="val" id="v_ccb_t">2,20%</span></div>
+          <input type="range" id="i_ccb_t" min="0.5" max="10" step="0.01" value="2.20">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>prazo (meses)</span><span class="val" id="v_ccb_n">36</span></div>
+          <input type="range" id="i_ccb_n" min="2" max="120" step="1" value="36">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>carência de principal (meses)</span><span class="val" id="v_ccb_car">0</span></div>
+          <input type="range" id="i_ccb_car" min="0" max="24" step="1" value="0">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>sistema de amortização</span></div>
+          <select id="i_ccb_sis">
+            <option value="price">Price (PMT constante)</option>
+            <option value="sac">SAC (amortização constante)</option>
+            <option value="bullet">Bullet (juros mensais + principal no fim)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px">
+        <div class="section-label">ágio na cessão</div>
+        <div class="field">
+          <div class="field-label"><span>ágio (% sobre VP do contrato)</span><span class="val" id="v_ccb_ago">0,00%</span></div>
+          <input type="range" id="i_ccb_ago" min="0" max="15" step="0.1" value="0">
+          <div style="margin-top:8px;padding:8px 10px;background:var(--bg-2);border-left:2px solid var(--lime);border-radius:0 2px 2px 0;font-family:var(--mono);font-size:11px">
+            <div style="color:var(--ink-3);font-size:10px;letter-spacing:.05em">vp pago pelo fundo</div>
+            <div style="color:var(--lime);font-weight:600;font-size:14px;margin-top:2px" id="v_ccb_vpcessao">R$ —</div>
+          </div>
+          <div class="note">ágio = (VP cessão / VP contrato) − 1. percentual cobrado pelo originador acima do valor do contrato. o fundo paga mais e seus juros acruados ficam relativamente menores. em caso de pré-pagamento, o CCB liquida pelo VP do contrato e o ágio é perdido.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">pré-pagamento linear</div>
+        <div class="field">
+          <div class="field-label"><span>mês a partir do qual começa</span><span class="val" id="v_ccb_pps">desligado</span></div>
+          <input type="range" id="i_ccb_pps" min="0" max="120" step="1" value="0">
+          <div class="note">0 = desligado. a partir do mês informado, o saldo amortiza linearmente conforme o % abaixo. o pré-pagamento só ocorre dentro do prazo do empréstimo.</div>
+        </div>
+        <div class="field">
+          <div class="field-label"><span>% mensal do saldo</span><span class="val" id="v_ccb_pp">0,00%</span></div>
+          <input type="range" id="i_ccb_pp" min="0" max="20" step="0.1" value="0">
+          <div class="note">% do saldo devedor que pré-paga em cada mês a partir do mês inicial.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:18px">
+
+      <div class="grid g-2">
+        <div class="stat accent">
+          <div class="lbl">PMT 1º mês</div>
+          <div class="val" id="ccb_pmt1">—</div>
+          <div class="sub" id="ccb_pmt_desc">—</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">VP contrato</div>
+          <div class="val mono" id="ccb_vp_contrato" style="font-size:18px">—</div>
+          <div class="sub">empréstimo nominal</div>
+        </div>
+        <div class="stat warn">
+          <div class="lbl">VP cessão (com ágio)</div>
+          <div class="val mono" id="ccb_vp_cessao" style="font-size:18px">—</div>
+          <div class="sub" id="ccb_agio_abs">ágio R$ —</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">total a receber</div>
+          <div class="val mono" id="ccb_total" style="font-size:18px">—</div>
+          <div class="sub" id="ccb_total_desc">—</div>
+        </div>
+        <div class="stat ok">
+          <div class="lbl">TIR efetiva FIDC (a.a.)</div>
+          <div class="val mono" id="ccb_tir_aa" style="font-size:18px">—</div>
+          <div class="sub" id="ccb_tir">— a.m.</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">duration</div>
+          <div class="val mono" id="ccb_dur" style="font-size:18px">—</div>
+          <div class="sub">meses</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>evolução da dívida — contrato vs cessão</h3>
+        <div class="card-sub">CCB original (contrato) vs papel comprado pelo fundo (cessão com ágio)</div>
+        <div class="chart-wrap"><svg class="chart-svg" id="ccb_chart" viewBox="0 0 600 240" preserveAspectRatio="none"></svg></div>
+        <div class="chart-legend">
+          <div class="leg"><div class="sw" style="background:var(--lime)"></div>saldo do contrato</div>
+          <div class="leg"><div class="sw" style="background:var(--warn)"></div>saldo da cessão (com ágio)</div>
+          <div class="leg"><div class="sw" style="background:var(--ink-3)"></div>juros acumulados</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h3>cronograma de pagamentos do exemplar</h3>
+    <div class="card-sub">tabela completa — dívida início, juros, amortização, pré-pagamento, PMT e dívida fim</div>
+    <div class="tbl-wrap" style="margin-top:14px;max-height:480px;overflow-y:auto">
+      <table class="cf" id="ccb_tbl">
+        <thead>
+          <tr>
+            <th>mês</th>
+            <th>dívida início</th>
+            <th>juros</th>
+            <th>amortização</th>
+            <th>pré-pagto</th>
+            <th>PMT</th>
+            <th>dívida fim</th>
+            <th>% pago</th>
+            <th>obs</th>
+          </tr>
+        </thead>
+        <tbody id="ccb_body"></tbody>
+      </table>
+    </div>
+    <div class="note">price: PMT constante · sac: amortização constante · bullet: principal no fim · pré-pagamento: amortização extra linear a partir do mês definido — em pré-pagamento, o CCB liquida pelo valor do contrato e parte do ágio é perdida</div>
+  </div>
+
+  <!-- COMPRAS DE DCs PELO FUNDO -->
+  <div class="grid g-2" style="margin-top:18px">
+    <div class="card">
+      <h3>compras de DCs pelo fundo</h3>
+      <div class="card-sub">quantos exemplares deste CCB o fundo compra a cada mês, respeitando caixa mínimo</div>
+      <div class="tbl-wrap" style="margin-top:14px;max-height:520px;overflow-y:auto">
+        <table class="cf" id="ccb_compras_tbl">
+          <thead>
+            <tr>
+              <th>mês</th>
+              <th>fase</th>
+              <th>caixa disp.</th>
+              <th>qtd compradas</th>
+              <th>custo total</th>
+              <th>vp contrato</th>
+              <th>ágio pago</th>
+            </tr>
+          </thead>
+          <tbody id="ccb_compras_body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>valor da carteira do fundo</h3>
+      <div class="card-sub">preço × quantidade ao longo do tempo (saldo dos DCs + recebíveis)</div>
+      <div class="chart-wrap tall"><svg class="chart-svg" id="ccb_carteira_chart" viewBox="0 0 600 320" preserveAspectRatio="none"></svg></div>
+      <div class="chart-legend">
+        <div class="leg"><div class="sw" style="background:var(--warn)"></div>saldo da carteira</div>
+        <div class="leg"><div class="sw" style="background:var(--lime)"></div>caixa do fundo</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ABA 5: CURVA DI ========== -->
+<section class="panel" id="p5">
+  <div class="panel-head">
+    <h2>curva <b>DI futura</b></h2>
+    <span class="pill">aba 05 — taxas referenciais b3</span>
+  </div>
+
+  <div class="grid g-12-8">
+    <div class="card">
+      <div class="card-title">curva di — vértices</div>
+      <div class="card-sub">prazo em dias úteis → taxa a.a. (%). edite vértices ou importe csv da b3.</div>
+
+      <div style="margin:12px 0;padding:10px 14px;background:var(--bg-2);border:1px solid var(--line);border-radius:2px">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-bottom:4px">fonte oficial b3 →</div>
+        <a href="https://www.b3.com.br/pt_br/market-data-e-indices/servicos-de-dados/market-data/consultas/mercado-de-derivativos/precos-referenciais/taxas-referenciais-bm-fbovespa/" target="_blank" rel="noopener" style="color:var(--lime);font-family:var(--mono);font-size:11px;text-decoration:none;word-break:break-all">b3.com.br/.../taxas-referenciais-bm-fbovespa ↗</a>
+        <div class="note" style="margin-top:6px">baixe o csv "taxas referenciais bm&amp;fbovespa" e importe abaixo. a curva fica salva no navegador entre sessões.</div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin:14px 0;flex-wrap:wrap">
+        <button class="action-btn primary" id="btn_di_import_csv">↓ importar csv</button>
+        <input type="file" id="file_di_csv" accept=".csv,.txt,text/csv">
+        <button class="action-btn" id="btn_di_add">+ vértice</button>
+        <button class="action-btn" id="btn_di_reset">↻ resetar</button>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--ink-3);align-self:center" id="di_meta_inline">—</span>
+      </div>
+
+      <table class="di-tbl" id="di_tbl">
+        <thead>
+          <tr><th>prazo (du)</th><th>taxa (% a.a.)</th><th>fra calculado</th><th class="action"></th></tr>
+        </thead>
+        <tbody id="di_body"></tbody>
+      </table>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="card">
+        <h3>curva visualizada</h3>
+        <div class="card-sub">passe o mouse sobre a curva — taxa a.a., a.m. e vértice mais próximo</div>
+        <div class="chart-wrap" style="position:relative">
+          <svg class="chart-svg" id="di_chart" viewBox="0 0 600 240" preserveAspectRatio="none"></svg>
+          <div id="di_tooltip" style="position:absolute;pointer-events:none;display:none;background:var(--bg);border:1px solid var(--lime);border-radius:3px;padding:6px 10px;font-family:var(--mono);font-size:11px;color:var(--ink);z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>cdi forward implícito</h3>
+        <div class="card-sub">cdi mensal projetado a partir da curva di</div>
+        <div class="grid g-3" style="margin-top:10px">
+          <div class="stat tight"><div class="lbl">cdi 1m</div><div class="val mono" id="cdi_1m" style="font-size:14px">—</div></div>
+          <div class="stat tight"><div class="lbl">cdi 6m</div><div class="val mono" id="cdi_6m" style="font-size:14px">—</div></div>
+          <div class="stat tight"><div class="lbl">cdi 12m</div><div class="val mono" id="cdi_12m" style="font-size:14px">—</div></div>
+          <div class="stat tight"><div class="lbl">cdi 24m</div><div class="val mono" id="cdi_24m" style="font-size:14px">—</div></div>
+          <div class="stat tight"><div class="lbl">cdi 36m</div><div class="val mono" id="cdi_36m" style="font-size:14px">—</div></div>
+          <div class="stat tight"><div class="lbl">média 24m</div><div class="val mono" id="cdi_avg24" style="font-size:14px">—</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ABA 6: FLUXO E GRÁFICOS ========== -->
+<section class="panel" id="p6">
+  <div class="panel-head">
+    <h2>fluxo &amp; <b>gráficos</b></h2>
+    <span class="pill">aba 06 — ciclo de vida completo</span>
+  </div>
+
+  <div class="grid g-4" style="margin-bottom:18px">
+    <div class="stat accent"><div class="lbl">duração do fundo</div><div class="val" id="sim_dur">—</div><div class="sub" id="sim_dur_sub">meses</div></div>
+    <div class="stat"><div class="lbl">mês fim sênior</div><div class="val mono" id="sim_end_sen" style="font-size:18px">—</div><div class="sub">cota mais protegida</div></div>
+    <div class="stat"><div class="lbl">mês fim mezanino</div><div class="val mono" id="sim_end_mez" style="font-size:18px">—</div><div class="sub">após sênior</div></div>
+    <div class="stat"><div class="lbl">mês liquidação sub</div><div class="val mono" id="sim_end_fund" style="font-size:18px">—</div><div class="sub">fim do fundo</div></div>
+  </div>
+
+  <div class="grid g-4" style="margin-bottom:18px">
+    <div class="stat"><div class="lbl">tir sênior (aa)</div><div class="val mono" id="sim_tir_sen" style="font-size:18px">—</div><div class="sub" id="sim_apo_sen">aporte —</div></div>
+    <div class="stat"><div class="lbl">tir mezanino (aa)</div><div class="val mono" id="sim_tir_mez" style="font-size:18px">—</div><div class="sub" id="sim_apo_mez">aporte —</div></div>
+    <div class="stat ok"><div class="lbl">tir sub (aa)</div><div class="val mono" id="sim_tir_sub" style="font-size:18px">—</div><div class="sub" id="sim_apo_sub">aporte —</div></div>
+    <div class="stat ok"><div class="lbl">moic sub</div><div class="val" id="sim_moic_sub">—</div><div class="sub">múltiplo de capital</div></div>
+  </div>
+
+  <div class="grid g-2" style="margin-bottom:18px">
+    <div class="card">
+      <h3>evolução do passivo (empilhado)</h3>
+      <div class="card-sub">PL por classe — captação → revolvência → cash sweep</div>
+      <div class="chart-wrap tall"><svg class="chart-svg" id="cf_chart_stack" viewBox="0 0 600 320" preserveAspectRatio="none"></svg></div>
+      <div class="chart-legend">
+        <div class="leg"><div class="sw" style="background:var(--senior)"></div>sênior</div>
+        <div class="leg"><div class="sw" style="background:var(--mez)"></div>mezanino</div>
+        <div class="leg"><div class="sw" style="background:var(--mezesp)"></div>mez. especial</div>
+        <div class="leg"><div class="sw" style="background:var(--sub)"></div>sub júnior</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>carteira de DCs + caixa</h3>
+      <div class="card-sub">o que o fundo tem do lado do ativo</div>
+      <div class="chart-wrap tall"><svg class="chart-svg" id="cf_chart_assets" viewBox="0 0 600 320" preserveAspectRatio="none"></svg></div>
+      <div class="chart-legend">
+        <div class="leg"><div class="sw" style="background:var(--lime)"></div>caixa</div>
+        <div class="leg"><div class="sw" style="background:var(--warn)"></div>saldo carteira DC</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>subordinação efetiva (% do PL)</h3>
+      <div class="card-sub">proteção da sênior ao longo da vida do fundo</div>
+      <div class="chart-wrap"><svg class="chart-svg" id="cf_chart_inv" viewBox="0 0 600 240" preserveAspectRatio="none"></svg></div>
+      <div class="chart-legend">
+        <div class="leg"><div class="sw" style="background:var(--sub)"></div>sub + mez (proteção da sênior)</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>amortização das cotas</h3>
+      <div class="card-sub">pari passu entre as três classes durante o período de amortização</div>
+      <div class="chart-wrap"><svg class="chart-svg" id="cf_chart_amort" viewBox="0 0 600 240" preserveAspectRatio="none"></svg></div>
+      <div class="chart-legend">
+        <div class="leg"><div class="sw" style="background:var(--senior)"></div>amort sênior</div>
+        <div class="leg"><div class="sw" style="background:var(--mez)"></div>amort mezanino</div>
+        <div class="leg"><div class="sw" style="background:var(--sub)"></div>amort sub júnior</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>tabela mensal completa</h3>
+    <div class="card-sub">fluxo do fundo do mês 1 até a liquidação · aportes e amortizações pari passu</div>
+    <div class="tbl-wrap" style="margin-top:14px;max-height:520px;overflow-y:auto">
+      <table class="cf" id="cf_tbl">
+        <thead>
+          <tr>
+            <th>mês</th>
+            <th>fase</th>
+            <th>cap sen</th>
+            <th>cap mez</th>
+            <th>cap sub</th>
+            <th>orig</th>
+            <th>carteira</th>
+            <th>caixa</th>
+            <th>pl sen</th>
+            <th>pl mez</th>
+            <th>pl sub</th>
+            <th>rec dc</th>
+            <th>despesas</th>
+            <th>am sen</th>
+            <th>am mez</th>
+            <th>am sub</th>
+          </tr>
+        </thead>
+        <tbody id="cf_body"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ABA 7: SENSIBILIDADE ========== -->
+<section class="panel" id="p7">
+  <div class="panel-head">
+    <h2>análise de <b>sensibilidade</b></h2>
+    <span class="pill">aba 07 — stress tests</span>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card">
+      <h3>pdd × write-off → resultado sub (% a.m.)</h3>
+      <div class="card-sub">retorno da subordinada em diferentes cenários de perda</div>
+      <div class="heat-axis-label">linhas: pdd (r$ mil/mês) · colunas: write-off (% a.m.)</div>
+      <div class="heat-wrap"><table class="heat" id="heat1"></table></div>
+    </div>
+
+    <div class="card">
+      <h3>pdd × taxa dc → resultado sub</h3>
+      <div class="card-sub">inadimplência vs taxa dos direitos creditórios</div>
+      <div class="heat-axis-label">linhas: pdd (r$ mil/mês) · colunas: taxa dc (% a.m.)</div>
+      <div class="heat-wrap"><table class="heat" id="heat2"></table></div>
+    </div>
+
+    <div class="card">
+      <h3>curva de breakeven da sub</h3>
+      <div class="card-sub">evolução do resultado conforme pdd aumenta</div>
+      <div class="chart-wrap"><svg class="chart-svg" id="chart1" viewBox="0 0 600 240" preserveAspectRatio="none"></svg></div>
+    </div>
+
+    <div class="card">
+      <h3>proteção efetiva por camada</h3>
+      <div class="card-sub">buffer de absorção em valor absoluto</div>
+      <div class="buffer-wrap" id="buf2"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ABA 8: ROADMAP ========== -->
+<section class="panel" id="p8">
+  <div class="panel-head">
+    <h2>roadmap da <b>estruturação</b></h2>
+    <span class="pill">aba 08 — checklist completo</span>
+  </div>
+
+  <div class="grid g-12-8">
+    <div class="card">
+      <h3>etapas por fase</h3>
+      <div class="card-sub">⚠ = ponto crítico · clique para marcar como concluído</div>
+      <div class="checklist" id="ck_full" style="margin-top:14px"></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="card">
+        <h3>progresso geral</h3>
+        <div class="card-sub">acompanhamento de conclusão</div>
+        <div class="progress-row">
+          <div>concluído_</div>
+          <div class="num" id="prog_num">0%</div>
+        </div>
+        <div class="progress"><div class="progress-fill" id="prog_fill" style="width:0%"></div></div>
+        <div class="note" id="prog_txt">0 de 0 itens concluídos</div>
+      </div>
+
+      <div class="card">
+        <h3>progresso por fase</h3>
+        <div class="card-sub">distribuição dos itens concluídos</div>
+        <div id="phase_progress" style="display:flex;flex-direction:column;gap:10px;margin-top:10px"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ABA 9: PROPOSTA ========== -->
+<section class="panel" id="p9">
+  <div class="panel-head">
+    <h2>gerador de <b>proposta</b></h2>
+    <span class="pill">aba 09 — resumo executivo</span>
+  </div>
+
+  <div class="grid g-2">
+    <div class="card">
+      <h3>dados da proposta</h3>
+      <div class="card-sub">personalize os campos para o cliente</div>
+
+      <div class="field" style="margin-top:14px">
+        <div class="field-label"><span>originador / devedor</span></div>
+        <input type="text" id="pr_orig" value="">
+      </div>
+      <div class="field">
+        <div class="field-label"><span>nome do fundo</span></div>
+        <input type="text" id="pr_fundo" value="">
+      </div>
+      <div class="field">
+        <div class="field-label"><span>data da proposta</span></div>
+        <input type="text" id="pr_data" value="">
+      </div>
+      <div class="field">
+        <div class="field-label"><span>tipo de ativo subjacente</span></div>
+        <input type="text" id="pr_ativo" value="Recebível de contratos públicos">
+      </div>
+      <div class="field">
+        <div class="field-label"><span>advogado responsável</span></div>
+        <input type="text" id="pr_adv" value="" placeholder="ex: Pinheiro Baruselli Advogados">
+      </div>
+      <div class="field">
+        <div class="field-label"><span>observações</span></div>
+        <input type="text" id="pr_obs" value="Possibilidade de Market Flex mediante condições de mercado adversas.">
+      </div>
+
+      <button class="action-btn primary" id="btn_prop" style="margin-top:14px">↻ gerar resumo executivo</button>
+    </div>
+
+    <div class="card">
+      <h3>resumo executivo</h3>
+      <div class="card-sub">preview do documento</div>
+      <div class="proposal-out" id="prop_out">
+        <p style="color:var(--ink-3);font-style:italic">Clique em "gerar resumo executivo" para visualizar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+const S = {
+  originador:"", fundo:"",
+  pl:100, pctSub:20, pctMez:10, pctMezEsp:0,
+  mezBEnabled:false,       // checkbox: Mezanino B (renomeado de Mezanino Especial)
+  ss:5, sm:7, sme:9, cdi:14,
+  gestor:"", adm:"", cust:"", cob:"", legal:"", consultor:"", estruturador:"",
+  dc:2.20, alc:95, cx:90, pdd:0.15, rec:50, wo:0,
+  orig:0,
+  feesOne:[
+    {name:"Assessoria Jurídica", linkTo:"legal", val:250000},
+    {name:"Taxa de Estruturação", linkTo:"estruturador", val:60000},
+    {name:"Taxa de Distribuição — Sênior", desc:"% sobre PL Sênior captado", isPct:true, basis:"sen", pct:1.5},
+    {name:"Taxa de Distribuição — Mezanino", desc:"% sobre PL Mezanino captado", isPct:true, basis:"mez", pct:2.0},
+    {name:"Registro CVM da Oferta", desc:"0,03% sobre volume", isFormula:true, formula:"cvmOferta"},
+    {name:"Registro CVM do Fundo", desc:"25% da taxa anual CVM", val:5000},
+    {name:"Registro ANBIMA", desc:"0,003479% do volume", isFormula:true, formula:"anbima"},
+  ],
+  feesRec:[
+    // type: "pct_pl" → max(PL × pct/12, min). "fixed" → só monthly editável.
+    {name:"Gestão",       type:"pct_pl", pct:1.00, min:0,     monthly:0},
+    {name:"Consultoria",  type:"pct_pl", pct:2.00, min:0,     monthly:0},
+    {name:"Administração + Custódia", type:"pct_pl", pct:0.25, min:25000, monthly:0},
+    {name:"Originação",   type:"pct_pl", pct:0.00, min:0,     monthly:0},
+    {name:"Agente de Cobrança", type:"fixed", monthly:0},
+    {name:"Auditoria",          type:"fixed", monthly:Math.round(35000/12)},
+    {name:"Taxa Anual CVM",     type:"fixed", monthly:Math.round(20000/12)},
+  ],
+  // CCB
+  ccbDev:"Emitente S.A.", ccbCred:"FIDC / Banco",
+  ccbP:100000, ccbT:2.20, ccbN:36, ccbCar:0, ccbSis:"price",
+  ccbAgioSpread:0,        // spread adicional na taxa (legado, pode ser 0)
+  ccbAgio:0,              // ágio = markup VP cessão sobre VP contrato (0-15%)
+  ccbPP:0,                // % a.m. de pré-pagamento linear
+  ccbPPStart:0,           // mês a partir do qual o pré-pagamento começa (0 = desligado)
+  // === CICLO DE VIDA (fundo fechado) ===
+  fundType:"fechado",
+  invPeriod:12,              // duração máxima do investimento, em meses
+  invCapPct:100,             // % do PL alvo que ao ser atingido encerra a captação (default 100%, ou seja, só meses)
+  juniorPariPassu:true,      // amortiza Sub Júnior pari passu com as demais cotas?
+  cashMin:2,
+  maxMonths:84,
+  // DI curve — vértices em DIAS ÚTEIS (formato B3 nativo). taxa a.a. em %.
+  diCurve:[
+    {m:21,   t:14.85},   // ~1 mês
+    {m:63,   t:14.72},   // ~3 meses
+    {m:126,  t:14.50},   // ~6 meses
+    {m:252,  t:14.10},   // ~12 meses
+    {m:504,  t:13.80},   // ~24 meses
+    {m:756,  t:13.60},   // ~36 meses
+    {m:1008, t:13.50},   // ~48 meses
+    {m:1260, t:13.45},   // ~60 meses
+  ],
+  diMeta:{
+    updatedAt: null,        // ISO string da última atualização
+    dataBase: "",            // data base da curva (input do usuário, ex "26/05/2026")
+    fonte: "padrão",         // "padrão" | "advfn" | "b3" | "manual" | "json"
+    rawPaste: ""             // último texto colado (para auditoria)
+  },
+  // Proposta
+  prDate: new Date().toLocaleDateString("pt-BR"),
+  prAtivo:"Recebível de contratos públicos",
+  prAdv:"",
+  prObs:"Possibilidade de Market Flex mediante condições de mercado adversas.",
+  checklistDone:[]
+};
+
+function recalcInitialRec(){
+  const plMM = S.pl * 1e6;
+  S.feesRec.forEach(f=>{
+    if(f.type === "pct_pl"){
+      f.monthly = Math.max(plMM * (f.pct/100) / 12, f.min || 0);
+    }
+  });
+}
+recalcInitialRec();
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const fmtBR = (v, d=2) => (isFinite(v)?v:0).toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtMM = (v) => "R$ " + fmtBR(v/1e6, 2) + "MM";
+const fmtMI = (v) => Math.abs(v) >= 1e6 ? "R$ " + fmtBR(v/1e6, 2) + "MM" : "R$ " + fmtBR(v/1e3, 0) + "k";
+const fmtMoney = (v) => "R$ " + fmtBR(v, 2);
+const fmtPct = (v) => fmtBR(v,2) + "%";
+const fmtCDI = (a, c) => c === 0 ? "—" : fmtBR((a/c)*100, 0) + "%";
+const aaToAm = (aa) => Math.pow(1+aa, 1/12) - 1;
+const amToAa = (am) => Math.pow(1+am, 12) - 1;
+
+function toast(msg, type=""){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show " + type;
+  setTimeout(()=>t.className="toast " + type, 2200);
+}
+
+/* ============================================================
+   DI CURVE — interpolação
+   curva armazenada em DIAS ÚTEIS (formato B3). Conversão: 21 du/mês ≈ 252 du/ano.
+   ============================================================ */
+const DU_POR_MES = 21;
+function diRateAaByDU(prazoDU){
+  // Taxa a.a. para um prazo em DU, interpolada linearmente na curva
+  const c = [...S.diCurve].sort((a,b)=>a.m-b.m);
+  if(c.length === 0) return S.cdi || 14;
+  if(prazoDU <= c[0].m) return c[0].t;
+  if(prazoDU >= c[c.length-1].m) return c[c.length-1].t;
+  for(let i=0; i<c.length-1; i++){
+    if(prazoDU >= c[i].m && prazoDU <= c[i+1].m){
+      const f = (prazoDU - c[i].m)/(c[i+1].m - c[i].m);
+      return c[i].t + f*(c[i+1].t - c[i].t);
+    }
+  }
+  return c[c.length-1].t;
+}
+function diRateAa(prazoMeses){
+  // wrapper: converte meses → DU
+  return diRateAaByDU(prazoMeses * DU_POR_MES);
+}
+function cdiForwardMonthly(mes){
+  // Forward rate entre mes-1 e mes, via curva em DU
+  if(mes <= 1) return aaToAm(diRateAa(1)/100);
+  const r0 = diRateAa(mes-1)/100;
+  const r1 = diRateAa(mes)/100;
+  const acc0 = Math.pow(1+r0, (mes-1)/12);
+  const acc1 = Math.pow(1+r1, mes/12);
+  return (acc1/acc0) - 1;
+}
+function cdiMedio24(){
+  let acc = 1;
+  for(let i=1; i<=24; i++) acc *= (1+cdiForwardMonthly(i));
+  return Math.pow(acc, 1/24) - 1;
+}
+
+/* ============================================================
+   ENGINE
+   ============================================================ */
+const engine = {
+  structure(s){
+    const pl = s.pl * 1e6;
+    const sub = pl * s.pctSub/100;
+    const mez = pl * s.pctMez/100;
+    const mezEsp = pl * s.pctMezEsp/100;
+    const sen = pl - sub - mez - mezEsp;
+    return {pl, sen, mez, mezEsp, sub,
+      pctSen: sen/pl*100, pctMez: s.pctMez, pctMezEsp: s.pctMezEsp, pctSub: s.pctSub};
+  },
+
+  feesOneTotal(s){
+    const st = this.structure(s);
+    return s.feesOne.reduce((a,f)=>a+this.feeOneValue(f,s,st), 0);
+  },
+  feeOneValue(f, s, st){
+    if(f.isPct){
+      if(f.basis === "sen") return st.sen * f.pct/100;
+      if(f.basis === "mez") return (st.mez + st.mezEsp) * f.pct/100;
+      if(f.basis === "pl") return st.pl * f.pct/100;
+      return 0;
+    }
+    if(f.isFormula){
+      if(f.formula === "cvmOferta") return st.pl * 0.0003;
+      if(f.formula === "anbima") return st.pl * 0.00003479;
+      return 0;
+    }
+    return f.val || 0;
+  },
+  feesRecTotalMonthly(s){
+    return s.feesRec.reduce((a,b)=>a+(b.monthly||0), 0);
+  },
+
+  // Resultado mensal (mesParam: pode pegar CDI da curva DI ou usar o S.cdi)
+  monthly(s, override={}, mes=1){
+    const o = {...s, ...override};
+    const st = this.structure(o);
+
+    // CDI deste mês — da curva DI ou fallback
+    const cdiAm = cdiForwardMonthly(mes);
+    const cdiAa = amToAa(cdiAm);
+
+    const recDC = st.pl * (o.alc/100) * (o.dc/100);
+    const recCx = st.pl * (1 - o.alc/100) * (cdiAm * o.cx/100);
+
+    // Despesas das cotas: usam CDI da curva + spread
+    const despSen = st.sen * aaToAm(cdiAa + o.ss/100);
+    const despMez = st.mez * aaToAm(cdiAa + o.sm/100);
+    const despMezEsp = st.mezEsp * aaToAm(cdiAa + o.sme/100);
+
+    const despOpsFees = this.feesRecTotalMonthly(o);
+    const despOrig = st.pl * (o.orig/100) / 12;
+    const despOps = despOpsFees + despOrig;
+
+    const pddVal = st.pl * (o.pdd/100);  // PDD como % da carteira
+    const woVal = st.pl * (o.wo/100);
+
+    const resSub = recDC + recCx - despSen - despMez - despMezEsp - despOps - pddVal - woVal;
+    const rentSubAm = st.sub > 0 ? resSub / st.sub : 0;
+    const rentSubAa = amToAa(rentSubAm);
+    const pctCdi = (rentSubAa / cdiAa) * 100;
+
+    const resSubSP = resSub + pddVal;
+    const rentSubSPAm = st.sub > 0 ? resSubSP / st.sub : 0;
+    const impactoPdd = (rentSubSPAm - rentSubAm) * 10000;
+
+    return {st, cdiAm, cdiAa, recDC, recCx, despSen, despMez, despMezEsp, despOps,
+      pddVal, woVal, resSub, rentSubAm, rentSubAa, pctCdi,
+      resSubSP, rentSubSPAm, impactoPdd};
+  },
+
+  projection24m(s){
+    const rows = [];
+    let recAc=0, despAc=0, subAc=0;
+    for(let m=1; m<=24; m++){
+      const r = this.monthly(s, {}, m);
+      recAc += r.recDC;
+      despAc += r.despSen + r.despMez + r.despMezEsp;
+      subAc += r.resSub;
+      rows.push({mes:m, pl:r.st.pl, subPL:r.st.sub, sen:r.st.sen, mez:r.st.mez, mezEsp:r.st.mezEsp,
+        cdiAm:r.cdiAm,
+        recDC:r.recDC, recCx:r.recCx,
+        despSen:r.despSen, despMez:r.despMez+r.despMezEsp, despOps:r.despOps,
+        pdd:r.pddVal, resSub:r.resSub, rentSub:r.rentSubAm});
+    }
+    return {rows, recAc, despAc, subAc};
+  },
+
+  // CCB com ágio e pré-pagamento
+  ccbSchedule(s){
+    const P = s.ccbP;
+    const i = s.ccbT/100;               // taxa do contrato
+    const n = s.ccbN;
+    const carencia = s.ccbCar;
+    const sis = s.ccbSis;
+    const agioMkup = (s.ccbAgio||0)/100;
+    const ppStart = Math.max(0, parseInt(s.ccbPPStart||0));
+    const ppPctMes = parseFloat(s.ccbPP||0)/100;
+    const valorPago = P * (1 + agioMkup);  // o que o fundo paga ao originador
+
+    const rows = [];
+    let saldo = P;
+
+    for(let k=1; k<=n; k++){
+      const ini = saldo;
+      const juros = saldo * i;
+      let amort = 0, prepay = 0;
+      let obs = "";
+
+      if(k <= carencia){
+        amort = 0; obs = "carência";
+      } else {
+        if(sis === "price"){
+          const meses = n - carencia;
+          const pmtFix = P * (i*Math.pow(1+i, meses)) / (Math.pow(1+i, meses) - 1);
+          amort = pmtFix - juros;
+        } else if(sis === "sac"){
+          amort = P / (n - carencia);
+        } else if(sis === "bullet"){
+          if(k === n){ amort = saldo; obs = "bullet final"; }
+        }
+      }
+      if(amort < 0) amort = 0;
+      if(amort > saldo) amort = saldo;
+
+      // Pré-pagamento linear: a partir do mês ppStart, % do saldo restante após amortização normal
+      if(ppStart > 0 && k >= ppStart && ppPctMes > 0){
+        const saldoPos = saldo - amort;
+        prepay = saldoPos * ppPctMes;
+        if(prepay > saldoPos) prepay = saldoPos;
+        if(prepay > 0) obs = obs ? obs + ` + pp ${(ppPctMes*100).toFixed(1)}%` : `pp ${(ppPctMes*100).toFixed(1)}%`;
+      }
+
+      const pmt = juros + amort + prepay;
+      const fim = saldo - amort - prepay;
+      saldo = fim;
+      rows.push({mes:k, ini, juros, amort, prepay, pmt, fim, pctPago:(P-fim)/P*100, obs});
+      if(saldo <= 0.01) break;
+    }
+
+    const totalPmt = rows.reduce((a,b)=>a+b.pmt, 0);
+    const totalJuros = rows.reduce((a,b)=>a+b.juros, 0);
+    const totalAmort = rows.reduce((a,b)=>a+b.amort + b.prepay, 0);
+
+    // TIR efetiva FIDC: paga valorPago em t=0, recebe pmts em t=1..n
+    const tirNewton = ()=>{
+      let r = 0.02;
+      for(let it=0; it<200; it++){
+        let npv = -valorPago, dnpv = 0;
+        rows.forEach((row,idx)=>{
+          const t = idx+1;
+          npv += row.pmt / Math.pow(1+r, t);
+          dnpv += -t * row.pmt / Math.pow(1+r, t+1);
+        });
+        if(Math.abs(npv) < 1e-6) break;
+        if(dnpv === 0) break;
+        let step = npv/dnpv;
+        if(step > 0.5) step = 0.5; if(step < -0.5) step = -0.5;
+        r = r - step;
+        if(r < -0.5) r = -0.5; if(r > 5) r = 5;
+      }
+      return r;
+    };
+    const tir = tirNewton();
+
+    // TIR teórica (sem ágio) = taxa do contrato
+    const tirSemAgio = i;
+
+    // Duration Macaulay (descontando pela taxa do contrato)
+    let dur = 0, pvTotal = 0;
+    rows.forEach((row,idx)=>{
+      const t = idx+1;
+      const pv = row.pmt / Math.pow(1+i, t);
+      dur += t * pv;
+      pvTotal += pv;
+    });
+    dur = pvTotal > 0 ? dur / pvTotal : 0;
+
+    // Curva da CESSÃO: o fundo "vê" no momento 0 um papel valendo P×(1+ágio)
+    // que decresce conforme amortiza. Vamos calcular o saldo da cessão mês a mês
+    // mantendo a mesma proporção do saldo do contrato: saldoCessao = saldo × (1+ágio)
+    // (Aproximação razoável; alternativamente seria reduzir o markup proporcional à amortização)
+    const rowsCessao = rows.map(r=>({
+      mes: r.mes,
+      saldoContrato: r.fim,
+      saldoCessao: r.fim * (1 + agioMkup),
+      juros: r.juros,
+      amort: r.amort,
+      prepay: r.prepay,
+      pmt: r.pmt
+    }));
+
+    return {rows, rowsCessao, totalPmt, totalJuros, totalAmort, dur,
+      valorPago, valorContrato: P, agioAbs: valorPago - P,
+      taxaContrato: amToAa(i)*100,
+      tirSemAgio: amToAa(tirSemAgio)*100,
+      tirAm: tir*100,
+      tirAa: amToAa(tir)*100
+    };
+  },
+
+  /* ============================================================
+     SIMULATE — motor de ciclo de vida completo
+     Período de investimento → revolvência → período de amortização → cash sweep
+     ============================================================ */
+
+  // Cria CCB para a carteira. ccbT já vem como taxa efetiva (incluindo spread).
+  // Ágio é tratado FORA: o caixa pago para originar é principal × (1+ágio), mas o saldo devedor do papel é apenas principal.
+  _newCCBSchedule(principal, ccbTaxa, ccbN, ccbSis, ccbCar){
+    const i = ccbTaxa/100;
+    const n = ccbN;
+    const mesesAmort = n - ccbCar;
+    let pmtFix = 0;
+    if(ccbSis === "price" && mesesAmort > 0){
+      pmtFix = principal * (i*Math.pow(1+i, mesesAmort)) / (Math.pow(1+i, mesesAmort) - 1);
+    }
+    return {
+      principal, saldo: principal, taxa: i,
+      sis: ccbSis, car: ccbCar, n,
+      mesAtual: 0, pmtFix
+    };
+  },
+
+  // Avança CCB em 1 mês. Retorna {juros, amort, prepay, ativa}
+  _advanceCCB(ccb, prepayPctMes){
+    ccb.mesAtual += 1;
+    if(ccb.saldo <= 0.01){ return {juros:0, amort:0, prepay:0, ativa:false}; }
+
+    const juros = ccb.saldo * ccb.taxa;
+    let amort = 0;
+    if(ccb.mesAtual <= ccb.car){
+      amort = 0;
+    } else if(ccb.sis === "price"){
+      amort = ccb.pmtFix - juros;
+    } else if(ccb.sis === "sac"){
+      amort = ccb.principal / (ccb.n - ccb.car);
+    } else if(ccb.sis === "bullet"){
+      amort = (ccb.mesAtual === ccb.n) ? ccb.saldo : 0;
+    }
+    if(amort < 0) amort = 0;
+    if(amort > ccb.saldo) amort = ccb.saldo;
+
+    // Pré-pagamento linear: % do saldo restante após amortização normal
+    let prepay = 0;
+    if(prepayPctMes > 0){
+      const saldoAposAmort = ccb.saldo - amort;
+      prepay = saldoAposAmort * (prepayPctMes/100);
+      if(prepay > saldoAposAmort) prepay = saldoAposAmort;
+    }
+
+    ccb.saldo -= (amort + prepay);
+    return {juros, amort, prepay, ativa: ccb.saldo > 0.01};
+  },
+
+  /* ============================================================
+     SIMULATE — fundo fechado pari passu
+     - Aportes pari passu entre sen / mez / mezB / sub
+     - PL contábil de cada classe acrua CDI+spread
+     - Sub Júnior = residual do fundo (acrua resultado)
+     - Captação termina por meses OU % do PL atingido
+     - Caixa mínimo = % do PL vigente
+     - Amortização pro-rata mensal a partir do fim da captação
+     ============================================================ */
+  simulate(s){
+    const plAlvo = s.pl * 1e6;
+    const pctSub = s.pctSub/100;
+    const pctMez = s.pctMez/100;
+    const pctMezEsp = (s.mezBEnabled ? s.pctMezEsp : 0)/100;
+    const pctSen = 1 - pctSub - pctMez - pctMezEsp;
+    const M = Math.max(1, Math.floor(s.invPeriod || 12));
+    const capPct = (s.invCapPct || 100)/100;
+    const cashMinPct = (s.cashMin || 0)/100;
+    const maxN = Math.max(M+12, Math.min(s.maxMonths || 84, 240));
+
+    // Taxa efetiva da CCB para o fundo (com spread/ágio na taxa, se houver)
+    const ccbTaxaEf = s.ccbT + (s.ccbAgioSpread||0);
+    // Ágio = markup sobre VP de venda: fundo paga principal × (1+ágio) e ganha um papel com saldo = principal
+    const agioMkup = (s.ccbAgio||0)/100;
+    // Pré-pagamento linear
+    const ppStartMonth = Math.max(0, parseInt(s.ccbPPStart||0));
+    const ppPctMes = parseFloat(s.ccbPP||0);
+
+    // Aporte máximo mensal: para captar plAlvo em M meses, é plAlvo/M
+    const aporteMaxMes = plAlvo / M;
+
+    // Estado das cotas (PL contábil — acrua juros)
+    let plSen = 0, plMez = 0, plMezEsp = 0;
+    // Sub é residual: vamos calcular dinamicamente
+
+    let caixa = 0;
+    const carteira = [];
+
+    // Aportes acumulados (para TIR/MOIC)
+    let aporteSen = 0, aporteMez = 0, aporteMezEsp = 0, aporteSub = 0;
+    const fluxoSen = [], fluxoMez = [], fluxoMezEsp = [], fluxoSub = [];
+
+    const rows = [];
+    let plCaptadoAcum = 0;
+    let captacaoEncerrada = false;
+    let mesFimSen=null, mesFimMez=null, mesFimMezEsp=null, mesFimFundo=null;
+    let fase = "investimento";
+
+    // Para cálculo de amortização pro-rata: ao iniciar amortização, definimos vida útil restante
+    // Usamos: meses para liquidar = duração média dos CCBs restantes
+    // Como simplificação, calculamos a amortização pro-rata = saldo_caixa_distribuível / mesesRestantes
+    // mas mais simples: distribui à medida que CCBs amortizam.
+
+    for(let m=1; m<=maxN; m++){
+      const fl = {sen:0, mez:0, mezEsp:0, sub:0};
+
+      // === 1. CAPTAÇÃO (pari passu durante o período de investimento) ===
+      let captadoMes = 0, capSen=0, capMez=0, capMezEsp=0, capSub=0;
+      if(!captacaoEncerrada){
+        let aporteEsteM = aporteMaxMes;
+        // Cap por % atingido: não ultrapassar plAlvo × capPct
+        const restanteAlvo = plAlvo * capPct - plCaptadoAcum;
+        if(restanteAlvo <= 0){
+          captacaoEncerrada = true;
+        } else {
+          if(aporteEsteM > restanteAlvo) aporteEsteM = restanteAlvo;
+          capSen = aporteEsteM * pctSen;
+          capMez = aporteEsteM * pctMez;
+          capMezEsp = aporteEsteM * pctMezEsp;
+          capSub = aporteEsteM * pctSub;
+          plSen += capSen;
+          plMez += capMez;
+          plMezEsp += capMezEsp;
+          caixa += aporteEsteM;
+          captadoMes = aporteEsteM;
+          plCaptadoAcum += aporteEsteM;
+          aporteSen += capSen;
+          aporteMez += capMez;
+          aporteMezEsp += capMezEsp;
+          aporteSub += capSub;
+          fl.sen -= capSen;
+          fl.mez -= capMez;
+          fl.mezEsp -= capMezEsp;
+          fl.sub -= capSub;
+          if(m >= M) captacaoEncerrada = true;
+          if(plCaptadoAcum >= plAlvo * capPct - 0.5) captacaoEncerrada = true;
+        }
+      }
+      if(captacaoEncerrada && fase === "investimento"){
+        fase = "amortizacao";
+      }
+
+      // === 2. RECEITA DOS DCs ===
+      let recJuros = 0, recAmort = 0, recPrepay = 0;
+      const carteiraNova = [];
+      const ppAtivo = (m >= ppStartMonth && ppStartMonth > 0) ? ppPctMes : 0;
+      for(const ccb of carteira){
+        const adv = this._advanceCCB(ccb, ppAtivo);
+        recJuros += adv.juros;
+        recAmort += adv.amort;
+        recPrepay += adv.prepay;
+        if(adv.ativa) carteiraNova.push(ccb);
+      }
+      carteira.length = 0;
+      carteiraNova.forEach(c=>carteira.push(c));
+      caixa += recJuros + recAmort + recPrepay;
+      const recDC = recJuros + recAmort + recPrepay;
+      let saldoCarteira = carteira.reduce((a,c)=>a+c.saldo, 0);
+
+      // === 3. RENDIMENTO DO CAIXA ===
+      const cdiAm = cdiForwardMonthly(m);
+      const cdiAa = amToAa(cdiAm);
+      const caixaInicio = caixa - recDC - captadoMes;
+      const recCaixa = Math.max(0, caixaInicio) * (cdiAm * (s.cx/100));
+      caixa += recCaixa;
+
+      // === 4. DESPESAS OPERACIONAIS ===
+      const despOps = this.feesRecTotalMonthly(s);
+      caixa -= despOps;
+
+      // === 5. PDD e WRITE-OFF (sobre saldo da carteira) ===
+      const pddVal = saldoCarteira * (s.pdd/100);
+      const woVal = saldoCarteira * (s.wo/100);
+      caixa -= (pddVal + woVal);
+
+      // === 6. ACRUAL DE JUROS DAS COTAS REMUNERADAS ===
+      // PL Sen/Mez/MezB acrua CDI+spread (capitaliza no PL contábil).
+      // Os juros NÃO saem em caixa durante o investimento. Eles serão pagos no período
+      // de amortização, junto com o principal pari-passu.
+      const jSen = plSen * aaToAm(cdiAa + s.ss/100);
+      const jMez = plMez * aaToAm(cdiAa + s.sm/100);
+      const jMezEsp = plMezEsp * aaToAm(cdiAa + s.sme/100);
+      plSen += jSen;
+      plMez += jMez;
+      plMezEsp += jMezEsp;
+
+      // === 7. ORIGINAÇÃO (investimento) ou AMORTIZAÇÃO PARI-PASSU (amortização) ===
+      let originadoMes = 0, pagoAoOriginador = 0;
+      let amortSenMes=0, amortMezMes=0, amortMezEspMes=0, amortSubMes=0;
+      let qtdCcbsCompradas = 0;
+      const ccbPrincipalTpl = s.ccbP;
+      const cashMinAtual = (plSen + plMez + plMezEsp) * cashMinPct;
+
+      if(fase === "investimento"){
+        // Originar novos CCBs com o caixa disponível acima da reserva.
+        // O custo de cada CCB é principal × (1+ágio).
+        let disponivel = Math.max(0, caixa - cashMinAtual);
+        const custoUnitario = ccbPrincipalTpl * (1 + agioMkup);
+        if(custoUnitario > 0 && disponivel >= custoUnitario){
+          qtdCcbsCompradas = Math.floor(disponivel / custoUnitario);
+          if(qtdCcbsCompradas > 0){
+            const custoTotal = qtdCcbsCompradas * custoUnitario;
+            for(let k=0; k<qtdCcbsCompradas; k++){
+              carteira.push(this._newCCBSchedule(ccbPrincipalTpl, ccbTaxaEf, s.ccbN, s.ccbSis, s.ccbCar));
+            }
+            caixa -= custoTotal;
+            originadoMes = qtdCcbsCompradas * ccbPrincipalTpl;
+            pagoAoOriginador = custoTotal;
+            saldoCarteira = carteira.reduce((a,c)=>a+c.saldo, 0);
+          }
+        }
+      } else {
+        // === FASE AMORTIZAÇÃO ===
+        // Caixa disponível acima da reserva mínima vai para o waterfall:
+        // (i) primeiro paga juros do mês das classes remuneradas (já acruados no PL acima)
+        // (ii) depois amortiza principal PARI-PASSU pelas 3 classes (proporcional ao PL contábil)
+        // (iii) sub recebe residual (não há "pagamento" explícito durante a vida — vai sendo
+        //      registrado contabilmente, e quando o fundo liquida ela recebe o restante)
+        let disponivel = Math.max(0, caixa - cashMinAtual);
+
+        // (i) Juros do mês: jSen + jMez + jMezEsp (já acruados no PL acima)
+        const jurosTotal = jSen + jMez + jMezEsp;
+        let pagaJuros = Math.min(disponivel, jurosTotal);
+        // Distribuir o pagamento de juros proporcionalmente
+        if(jurosTotal > 0){
+          const fracJurSen = jSen / jurosTotal;
+          const fracJurMez = jMez / jurosTotal;
+          const fracJurMezEsp = jMezEsp / jurosTotal;
+          const pagSen = pagaJuros * fracJurSen;
+          const pagMez = pagaJuros * fracJurMez;
+          const pagMezEsp = pagaJuros * fracJurMezEsp;
+          // Esses pagamentos são considerados parte da "amortização" da posição
+          // (mas reduzem o PL apenas se igualam aos juros acruados; o resto vai sair como amortização de principal abaixo)
+          plSen -= pagSen;
+          plMez -= pagMez;
+          plMezEsp -= pagMezEsp;
+          caixa -= pagaJuros;
+          disponivel -= pagaJuros;
+          amortSenMes += pagSen; amortMezMes += pagMez; amortMezEspMes += pagMezEsp;
+          fl.sen += pagSen; fl.mez += pagMez; fl.mezEsp += pagMezEsp;
+        }
+
+        // (ii) Amortização de principal pari-passu
+        if(disponivel > 0){
+          const plTotalRemun = plSen + plMez + plMezEsp;
+          if(plTotalRemun > 0){
+            let principalSweep = disponivel;
+            const aSen = Math.min(plSen, principalSweep * (plSen / plTotalRemun));
+            const aMez = Math.min(plMez, principalSweep * (plMez / plTotalRemun));
+            const aMezEsp = Math.min(plMezEsp, principalSweep * (plMezEsp / plTotalRemun));
+            plSen -= aSen;
+            plMez -= aMez;
+            plMezEsp -= aMezEsp;
+            caixa -= (aSen + aMez + aMezEsp);
+            amortSenMes += aSen; amortMezMes += aMez; amortMezEspMes += aMezEsp;
+            fl.sen += aSen; fl.mez += aMez; fl.mezEsp += aMezEsp;
+            // Resíduo: se o caixa disponível ainda for maior que o PL das classes, a sub
+            // pode receber parte. Em FIDC fechado padrão, isso normalmente fica no caixa
+            // até a liquidação final. Mantemos no caixa.
+          }
+        }
+
+        // Detectar fim de cada classe
+        if(plSen <= 0.5){ plSen = 0; if(mesFimSen===null) mesFimSen = m; }
+        if(plMez <= 0.5){ plMez = 0; if(mesFimMez===null) mesFimMez = m; }
+        if(plMezEsp <= 0.5){ plMezEsp = 0; if(mesFimMezEsp===null) mesFimMezEsp = m; }
+      }
+
+      // === 8. LIQUIDAÇÃO FINAL ===
+      const carteiraVazia = saldoCarteira <= 0.01 && carteira.length === 0;
+      const cotasZeradas = plSen <= 0.01 && plMez <= 0.01 && plMezEsp <= 0.01;
+      let liqSub = 0;
+      if(fase === "amortizacao" && carteiraVazia && cotasZeradas){
+        liqSub = caixa;
+        if(liqSub < 0) liqSub = 0;
+        caixa = 0;
+        fl.sub += liqSub;
+        if(mesFimFundo === null) mesFimFundo = m;
+      }
+
+      // PL contábil da Sub = patrimônio líquido residual do fundo
+      const plSubEcon = caixa + saldoCarteira - plSen - plMez - plMezEsp;
+
+      rows.push({
+        mes:m, fase,
+        captado:captadoMes,
+        capSen, capMez, capMezEsp, capSub,
+        originado:originadoMes,
+        pagoAoOriginador,
+        qtdCcbsCompradas,
+        carteiraSaldo:saldoCarteira,
+        carteiraQty:carteira.length,
+        caixa,
+        cashMinAtual,
+        plSen, plMez, plMezEsp,
+        plSub: plSubEcon,
+        plTotal: plSen + plMez + plMezEsp + Math.max(0, plSubEcon),
+        recJuros, recAmort, recPrepay, recDC, recCaixa,
+        despOps, pdd:pddVal, wo:woVal,
+        jSen, jMez, jMezEsp,
+        amortSen:amortSenMes, amortMez:amortMezMes, amortMezEsp:amortMezEspMes, amortSub:amortSubMes,
+        liqSub,
+        cdiAm,
+        fl
+      });
+      fluxoSen.push(fl.sen);
+      fluxoMez.push(fl.mez);
+      fluxoMezEsp.push(fl.mezEsp);
+      fluxoSub.push(fl.sub);
+
+      if(mesFimFundo !== null) break;
+    }
+
+    // TIR Newton-Raphson
+    function tirMensal(fluxos){
+      let r = 0.01;
+      for(let it=0; it<200; it++){
+        let npv = 0, dnpv = 0;
+        fluxos.forEach((f,idx)=>{
+          const t = idx+1;
+          npv += f / Math.pow(1+r, t);
+          dnpv += -t * f / Math.pow(1+r, t+1);
+        });
+        if(Math.abs(npv) < 0.5) break;
+        if(dnpv === 0) break;
+        let step = npv/dnpv;
+        if(step > 0.5) step = 0.5;
+        if(step < -0.5) step = -0.5;
+        r = r - step;
+        if(r < -0.5) r = -0.5;
+        if(r > 5) r = 5;
+      }
+      return r;
+    }
+    const tirSen = tirMensal(fluxoSen);
+    const tirMez = tirMensal(fluxoMez);
+    const tirMezEsp = tirMensal(fluxoMezEsp);
+    const tirSub = tirMensal(fluxoSub);
+
+    const recebidoSub = fluxoSub.filter(f=>f>0).reduce((a,b)=>a+b, 0);
+    const moicSub = aporteSub > 0 ? recebidoSub / aporteSub : 0;
+
+    return {
+      rows, M, maxN,
+      mesFimSen, mesFimMez, mesFimMezEsp, mesFimFundo,
+      aporteSen, aporteMez, aporteMezEsp, aporteSub,
+      tirSen, tirMez, tirMezEsp, tirSub,
+      tirSenAa: amToAa(tirSen), tirMezAa: amToAa(tirMez),
+      tirMezEspAa: amToAa(tirMezEsp), tirSubAa: amToAa(tirSub),
+      moicSub,
+      fluxoSen, fluxoMez, fluxoMezEsp, fluxoSub
+    };
+  },
+};
+
+/* ============================================================
+   BIND INPUTS
+   ============================================================ */
+function bindRange(id, key, fmt){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener("input", e=>{
+    const v = parseFloat(e.target.value);
+    S[key] = v;
+    const lblId = "v_" + id.slice(2);
+    const lbl = document.getElementById(lblId);
+    if(lbl && fmt) lbl.textContent = fmt(v);
+    renderAll();
+  });
+}
+
+bindRange("i_pl", "pl", v=>"R$ "+v+"MM");
+// Quando PL muda, recalcula as fees computed (gestão/consultoria/adm)
+document.getElementById("i_pl").addEventListener("input", ()=>{
+  recalcInitialRec();
+});
+bindRange("i_sub", "pctSub", v=>fmtPct(v));
+bindRange("i_mez", "pctMez", v=>fmtPct(v));
+bindRange("i_mezesp", "pctMezEsp", v=>fmtPct(v));
+bindRange("i_ss", "ss", v=>fmtPct(v));
+bindRange("i_sm", "sm", v=>fmtPct(v));
+bindRange("i_sme", "sme", v=>fmtPct(v));
+bindRange("i_cdi", "cdi", v=>fmtPct(v));
+bindRange("i_dc", "dc", v=>fmtPct(v));
+bindRange("i_alc", "alc", v=>fmtPct(v));
+bindRange("i_cx", "cx", v=>fmtPct(v));
+bindRange("i_pdd", "pdd", v=>fmtPct(v));
+bindRange("i_rec", "rec", v=>fmtPct(v));
+bindRange("i_wo", "wo", v=>fmtPct(v));
+
+bindRange("i_invp", "invPeriod", v=>v+" meses");
+bindRange("i_invcap", "invCapPct", v=>v+"%");
+bindRange("i_cashmin", "cashMin", v=>fmtPct(v));
+
+// Checkbox: amortizar júnior pari passu
+document.getElementById("i_jrpp").addEventListener("change", e=>{
+  S.juniorPariPassu = e.target.checked;
+  renderAll();
+});
+
+// Checkbox: Mezanino B (Mezanino Especial)
+document.getElementById("i_mezb_enable").addEventListener("change", e=>{
+  S.mezBEnabled = e.target.checked;
+  document.getElementById("mezb_fields").style.display = e.target.checked ? "" : "none";
+  document.getElementById("sme_field").style.display = e.target.checked ? "" : "none";
+  document.getElementById("wf_mezesp_row").style.display = e.target.checked ? "" : "none";
+  if(!e.target.checked){
+    S.pctMezEsp = 0;
+    document.getElementById("i_mezesp").value = 0;
+    document.getElementById("v_mezesp").textContent = "0,00%";
+  }
+  renderAll();
+});
+
+bindRange("i_ccb_p", "ccbP", v=>"R$ "+v.toLocaleString("pt-BR"));
+bindRange("i_ccb_t", "ccbT", v=>fmtPct(v));
+bindRange("i_ccb_n", "ccbN", v=>v+" m");
+bindRange("i_ccb_car", "ccbCar", v=>v+" m");
+bindRange("i_ccb_ago", "ccbAgio", v=>fmtPct(v));
+bindRange("i_ccb_pp", "ccbPP", v=>fmtPct(v));
+bindRange("i_ccb_pps", "ccbPPStart", v=>{
+  if(v===0) return "desligado";
+  if(v >= S.ccbN) return "fora do prazo";
+  return "mês "+v+" de "+S.ccbN;
+});
+
+document.getElementById("i_ccb_sis").addEventListener("change", e=>{
+  S.ccbSis = e.target.value;
+  renderCCB();
+});
+
+["i_originador","i_fundo","s_gestor","s_consultor","s_adm","s_estruturador","s_legal","s_cob","ccb_devedor","ccb_credor"].forEach(id=>{
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener("input", e=>{
+    const map = {
+      i_originador:"originador", i_fundo:"fundo",
+      s_gestor:"gestor", s_consultor:"consultor", s_adm:"adm",
+      s_estruturador:"estruturador", s_legal:"legal", s_cob:"cob",
+      ccb_devedor:"ccbDev", ccb_credor:"ccbCred"
+    };
+    S[map[id]] = e.target.value;
+    if(["s_legal","s_estruturador"].includes(id)){
+      renderFees();  // atualiza vinculação
+    }
+  });
+});
+
+/* ============================================================
+   CENÁRIOS
+   ============================================================ */
+const scenarios = {
+  base:  {dc:2.20, pdd:0.15, wo:0,   alc:95},
+  opt:   {dc:2.40, pdd:0.05, wo:0,   alc:97},
+  str:   {dc:2.20, pdd:0.40, wo:1.5, alc:92},
+  def:   {dc:1.90, pdd:0.65, wo:4,   alc:88}
+};
+document.querySelectorAll(".sc-btn").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    const sc = scenarios[b.dataset.sc];
+    Object.assign(S, sc);
+    document.getElementById("i_dc").value = sc.dc;
+    document.getElementById("i_pdd").value = sc.pdd;
+    document.getElementById("i_wo").value = sc.wo;
+    document.getElementById("i_alc").value = sc.alc;
+    document.getElementById("v_dc").textContent = fmtPct(sc.dc);
+    document.getElementById("v_pdd").textContent = fmtPct(sc.pdd);
+    document.getElementById("v_wo").textContent = fmtPct(sc.wo);
+    document.getElementById("v_alc").textContent = fmtPct(sc.alc);
+    document.querySelectorAll(".sc-btn").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    renderAll();
+    toast("cenário '"+b.dataset.sc+"' aplicado", "ok");
+  });
+});
+
+/* ============================================================
+   RENDER STRUCTURE
+   ============================================================ */
+function renderStructure(){
+  const st = engine.structure(S);
+  const m = engine.monthly(S);
+
+  // Subordinação mínima vista de cada classe
+  // Sênior: (Mez + MezEsp + Sub) / PL — total que existe abaixo dela
+  // Mez: (MezEsp + Sub) / PL — subordinação efetiva à Mezanino
+  const subSen = (st.mez + st.mezEsp + st.sub) / st.pl * 100;
+  const subMez = (st.mezEsp + st.sub) / st.pl * 100;
+
+  document.getElementById("r_pl_sen").textContent = fmtMM(st.sen);
+  document.getElementById("r_pct_sen").textContent = `${fmtPct(st.pctSen)} do PL · sub mín. ${fmtPct(subSen)}`;
+  document.getElementById("r_pl_mez").textContent = fmtMM(st.mez + st.mezEsp);
+  const pctMezTot = st.pctMez + (S.mezBEnabled ? st.pctMezEsp : 0);
+  document.getElementById("r_pct_mez").textContent = `${fmtPct(pctMezTot)} do PL · sub mín. ${fmtPct(subMez)}`;
+  document.getElementById("r_pl_sub").textContent = fmtMM(st.sub);
+  document.getElementById("r_pct_sub").textContent = `${fmtPct(st.pctSub)} do PL`;
+  document.getElementById("r_rent_sub").textContent = fmtPct(m.rentSubAa*100);
+  const cdiAnnRef = S.cdi/100;
+  const pctCdi = cdiAnnRef > 0 ? (m.rentSubAa / cdiAnnRef) * 100 : 0;
+  document.getElementById("r_rent_sub_sub").textContent = `${fmtBR(pctCdi,0)}% do CDI · a.a.`;
+
+  document.getElementById("d_ss").textContent = S.ss;
+  document.getElementById("d_sm").textContent = S.sm;
+  document.getElementById("d_sme").textContent = S.sme;
+  document.getElementById("d_pct_sen").textContent = fmtPct(st.pctSen);
+  document.getElementById("d_pct_mez").textContent = fmtPct(st.pctMez);
+  document.getElementById("d_pct_mezesp").textContent = fmtPct(st.pctMezEsp);
+  document.getElementById("d_pct_sub").textContent = fmtPct(st.pctSub);
+  document.getElementById("d_amt_sen").textContent = fmtMM(st.sen);
+  document.getElementById("d_amt_mez").textContent = fmtMM(st.mez);
+  document.getElementById("d_amt_mezesp").textContent = fmtMM(st.mezEsp);
+  document.getElementById("d_amt_sub").textContent = fmtMM(st.sub);
+}
+
+/* ============================================================
+   RENDER MODEL
+   ============================================================ */
+function renderModel(){
+  const m = engine.monthly(S);
+  document.getElementById("m_rent_am").textContent = fmtPct(m.rentSubAm*100);
+  document.getElementById("m_res_am").textContent = "res. mensal: " + fmtMI(m.resSub);
+  document.getElementById("m_rent_aa").textContent = fmtPct(m.rentSubAa*100);
+  document.getElementById("m_pct_cdi").textContent = "% do cdi: " + fmtBR(m.pctCdi, 0) + "%";
+  document.getElementById("m_imp_pdd").textContent = "-" + fmtBR(Math.abs(m.impactoPdd), 0);
+  document.getElementById("m_sub_sp").textContent = fmtPct(m.rentSubSPAm*100);
+
+  const items = [
+    {n:"Receita DC", v: m.recDC},
+    {n:"Receita Caixa", v: m.recCx},
+    {n:"Desp. Sênior", v: -m.despSen},
+    {n:"Desp. Mez.", v: -(m.despMez + m.despMezEsp)},
+    {n:"Desp. Ops.", v: -m.despOps},
+    {n:"PDD", v: -m.pddVal},
+    {n:"Write-off", v: -m.woVal},
+  ];
+  const max = Math.max(...items.map(i=>Math.abs(i.v)), 1);
+  document.getElementById("decomp").innerHTML = items.map(i=>{
+    const w = max>0 ? Math.abs(i.v)/max*100 : 0;
+    if(i.v >= 0){
+      return `<div class="dec-row">
+        <div></div>
+        <div class="dec-bar-side left"></div>
+        <div class="dec-name">${i.n}</div>
+        <div class="dec-bar-side right"><div class="dec-fill pos" style="width:${w}%"></div></div>
+        <div class="dec-val pos">+${fmtMI(Math.abs(i.v))}</div>
+      </div>`;
+    } else {
+      return `<div class="dec-row">
+        <div class="dec-val neg">−${fmtMI(Math.abs(i.v))}</div>
+        <div class="dec-bar-side left"><div class="dec-fill neg" style="width:${w}%"></div></div>
+        <div class="dec-name">${i.n}</div>
+        <div class="dec-bar-side right"></div>
+        <div></div>
+      </div>`;
+    }
+  }).join("");
+}
+
+/* ============================================================
+   RENDER FEES
+   ============================================================ */
+// helpers para inputs com separador de milhar
+function parseMoneyBR(str){
+  if(typeof str === "number") return str;
+  return parseFloat(String(str).replace(/\./g, "").replace(",", ".")) || 0;
+}
+function fmtMoneyInput(v){
+  return Math.round(v).toLocaleString("pt-BR");
+}
+
+function renderFees(){
+  const st = engine.structure(S);
+
+  // === ONE-TIME ===
+  const oneHtml = S.feesOne.map((f,idx)=>{
+    const computed = engine.feeOneValue(f, S, st);
+
+    // Nome: editável OU vinculado ao prestador da aba 1
+    let nameCell;
+    if(f.linkTo){
+      const linked = S[f.linkTo] || "";
+      const label = f.name + (linked ? " · " + linked : "");
+      nameCell = `<span style="font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink)">${label}</span>`;
+    } else {
+      nameCell = `<input type="text" value="${f.name}" data-fee-one="${idx}" data-fee-field="name">`;
+    }
+
+    let descCell = f.desc || "";
+
+    // Valor: input com separador (não-pct, não-formula) OU input pct OU computed
+    let valCell;
+    if(f.isPct){
+      valCell = `<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px">
+        <input type="number" step="0.05" value="${f.pct}" data-fee-one="${idx}" data-fee-field="pct" style="width:60px;text-align:right"><span style="font-family:var(--mono);font-size:11px;color:var(--ink-3)">%</span>
+        <span class="fee-val computed" style="margin-left:8px">${fmtMI(computed)}</span>
+      </div>`;
+    } else if(f.isFormula){
+      valCell = `<span class="fee-val computed">${fmtMI(computed)}</span>`;
+    } else {
+      valCell = `<div style="display:flex;align-items:center;justify-content:flex-end;gap:4px">
+        <span style="font-family:var(--mono);font-size:11px;color:var(--ink-3)">R$</span>
+        <input type="text" value="${fmtMoneyInput(f.val)}" data-fee-one="${idx}" data-fee-field="val" data-money="1" style="text-align:right;width:120px">
+      </div>`;
+    }
+    return `<div class="fee-row">
+      <div class="fee-name">${nameCell}</div>
+      <div class="fee-desc">${descCell}</div>
+      <div class="fee-val">${valCell}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("fees_one").innerHTML = oneHtml;
+
+  document.querySelectorAll('[data-fee-one]').forEach(el=>{
+    el.addEventListener("input", e=>{
+      const idx = parseInt(e.target.dataset.feeOne);
+      const field = e.target.dataset.feeField;
+      let v;
+      if(e.target.dataset.money === "1"){
+        v = parseMoneyBR(e.target.value);
+      } else if(e.target.type === "number"){
+        v = parseFloat(e.target.value) || 0;
+      } else {
+        v = e.target.value;
+      }
+      S.feesOne[idx][field] = v;
+      // Recalcula visual sem re-renderizar todo o card (evita perder foco no input)
+      if(field === "val" && e.target.dataset.money === "1"){
+        // pegar cursor antes de reformatar
+        const pos = e.target.selectionStart;
+        e.target.value = fmtMoneyInput(v);
+        try{ e.target.setSelectionRange(pos, pos); }catch(_){}
+      }
+      renderSummary(); renderModel(); renderCashflow();
+      // Atualizar só os totais e valores computados sem rerender total
+      document.getElementById("sum_one").textContent = fmtMI(engine.feesOneTotal(S));
+    });
+  });
+
+  const totalOne = engine.feesOneTotal(S);
+  document.getElementById("sum_one").textContent = fmtMI(totalOne);
+
+  // === RECORRENTES (tabela limpa) ===
+  const recHtml = `
+    <div class="rec-tbl">
+      <div class="rec-head">
+        <div>descrição</div>
+        <div>% a.a. PL</div>
+        <div>mín R$/mês</div>
+        <div>R$/mês</div>
+      </div>
+      ${S.feesRec.map((f,idx)=>{
+        if(f.type === "pct_pl"){
+          return `<div class="rec-row">
+            <div class="rec-name"><input type="text" value="${f.name}" data-fee-rec="${idx}" data-fee-field="name"></div>
+            <div class="rec-cell"><input type="number" step="0.05" min="0" value="${f.pct}" data-fee-rec="${idx}" data-fee-field="pct" style="text-align:right;width:62px"><span style="margin-left:3px;color:var(--ink-3)">%</span></div>
+            <div class="rec-cell"><span style="color:var(--ink-3);margin-right:3px">R$</span><input type="text" value="${fmtMoneyInput(f.min||0)}" data-fee-rec="${idx}" data-fee-field="min" data-money="1" style="text-align:right;width:90px"></div>
+            <div class="rec-cell rec-out">${fmtMI(f.monthly)}</div>
+          </div>`;
+        } else {
+          return `<div class="rec-row">
+            <div class="rec-name"><input type="text" value="${f.name}" data-fee-rec="${idx}" data-fee-field="name"></div>
+            <div class="rec-cell"><span style="color:var(--ink-4)">—</span></div>
+            <div class="rec-cell"><span style="color:var(--ink-4)">—</span></div>
+            <div class="rec-cell"><span style="color:var(--ink-3);margin-right:3px">R$</span><input type="text" value="${fmtMoneyInput(f.monthly||0)}" data-fee-rec="${idx}" data-fee-field="monthly" data-money="1" style="text-align:right;width:90px;color:var(--lime);font-weight:600"></div>
+          </div>`;
+        }
+      }).join("")}
+    </div>
+  `;
+  document.getElementById("fees_rec").innerHTML = recHtml;
+
+  document.querySelectorAll('[data-fee-rec]').forEach(el=>{
+    el.addEventListener("input", e=>{
+      const idx = parseInt(e.target.dataset.feeRec);
+      const field = e.target.dataset.feeField;
+      let v;
+      if(e.target.dataset.money === "1"){
+        v = parseMoneyBR(e.target.value);
+      } else if(e.target.type === "number"){
+        v = parseFloat(e.target.value) || 0;
+      } else {
+        v = e.target.value;
+      }
+      S.feesRec[idx][field] = v;
+      // Recalcula monthly se mudou pct ou min (em pct_pl)
+      if(S.feesRec[idx].type === "pct_pl" && (field === "pct" || field === "min")){
+        const plMM = S.pl * 1e6;
+        S.feesRec[idx].monthly = Math.max(plMM * (S.feesRec[idx].pct/100) / 12, S.feesRec[idx].min || 0);
+      }
+      // formata input money no próprio campo (não perde foco)
+      if(e.target.dataset.money === "1"){
+        const pos = e.target.selectionStart;
+        e.target.value = fmtMoneyInput(v);
+        try{ e.target.setSelectionRange(pos, pos); }catch(_){}
+      }
+      // Atualiza só a linha de output (monthly) sem rerender total
+      const row = e.target.closest(".rec-row");
+      if(row){
+        const out = row.querySelector(".rec-out");
+        if(out) out.textContent = fmtMI(S.feesRec[idx].monthly);
+      }
+      const totM = engine.feesRecTotalMonthly(S);
+      document.getElementById("sum_rec").textContent = fmtMI(totM);
+      document.getElementById("sum_rec_aa").textContent = fmtMI(totM*12) + " a.a.";
+      renderSummary(); renderModel(); renderCashflow();
+    });
+  });
+
+  const totalRecM = engine.feesRecTotalMonthly(S);
+  document.getElementById("sum_rec").textContent = fmtMI(totalRecM);
+  document.getElementById("sum_rec_aa").textContent = fmtMI(totalRecM*12) + " a.a.";
+  renderSummary();
+}
+
+function renderSummary(){
+  const totalOne = engine.feesOneTotal(S);
+  const totalRecM = engine.feesRecTotalMonthly(S);
+  const totalRecA = totalRecM * 12;
+  document.getElementById("r_one").textContent = fmtMI(totalOne);
+  document.getElementById("r_rec_m").textContent = fmtMI(totalRecM);
+  document.getElementById("r_rec_a").textContent = fmtMI(totalRecA);
+  document.getElementById("r_y1").textContent = fmtMI(totalOne + totalRecA);
+}
+
+/* ============================================================
+   RENDER CASHFLOW + GRÁFICOS
+   ============================================================ */
+function renderCashflow(){
+  const sim = engine.simulate(S);
+  const body = document.getElementById("cf_body");
+  body.innerHTML = sim.rows.map(r=>{
+    const fmtCell = (v) => Math.abs(v) < 100 ? "—" : (v/1e3).toLocaleString("pt-BR",{maximumFractionDigits:0})+"k";
+    return `<tr>
+      <td>${String(r.mes).padStart(2,"0")}</td>
+      <td style="color:${r.fase==='investimento'?'var(--lime)':'var(--warn)'};font-size:10px">${r.fase}</td>
+      <td class="pos">${fmtCell(r.capSen)}</td>
+      <td class="pos">${fmtCell(r.capMez)}</td>
+      <td class="pos">${fmtCell(r.capSub)}</td>
+      <td>${fmtCell(r.originado)}</td>
+      <td>${fmtBR(r.carteiraSaldo/1e6,2)}MM</td>
+      <td>${fmtBR(r.caixa/1e6,2)}MM</td>
+      <td>${fmtBR(r.plSen/1e6,2)}MM</td>
+      <td>${fmtBR(r.plMez/1e6,2)}MM</td>
+      <td>${fmtBR(r.plSub/1e6,2)}MM</td>
+      <td class="pos">${fmtCell(r.recDC)}</td>
+      <td class="neg">${fmtCell(r.despOps + r.pdd + r.wo)}</td>
+      <td class="${r.amortSen>0?'pos':''}">${fmtCell(r.amortSen)}</td>
+      <td class="${r.amortMez>0?'pos':''}">${fmtCell(r.amortMez)}</td>
+      <td class="${(r.amortSub+r.liqSub)>0?'pos':''}">${fmtCell(r.amortSub + r.liqSub)}</td>
+    </tr>`;
+  }).join("");
+
+  // === Métricas ===
+  document.getElementById("sim_dur").textContent = (sim.mesFimFundo || sim.rows.length) + "m";
+  document.getElementById("sim_dur_sub").textContent = `inv ${sim.M}m + amort ${(sim.mesFimFundo||sim.rows.length)-sim.M}m`;
+  document.getElementById("sim_end_sen").textContent = sim.mesFimSen ? "m"+sim.mesFimSen : "—";
+  document.getElementById("sim_end_mez").textContent = sim.mesFimMez ? "m"+sim.mesFimMez : "—";
+  document.getElementById("sim_end_fund").textContent = sim.mesFimFundo ? "m"+sim.mesFimFundo : "—";
+  document.getElementById("sim_tir_sen").textContent = fmtPct(sim.tirSenAa*100);
+  document.getElementById("sim_tir_mez").textContent = fmtPct(sim.tirMezAa*100);
+  document.getElementById("sim_tir_sub").textContent = fmtPct(sim.tirSubAa*100);
+  document.getElementById("sim_apo_sen").textContent = "aporte " + fmtMI(sim.aporteSen);
+  document.getElementById("sim_apo_mez").textContent = "aporte " + fmtMI(sim.aporteMez);
+  document.getElementById("sim_apo_sub").textContent = "aporte " + fmtMI(sim.aporteSub);
+  document.getElementById("sim_moic_sub").textContent = sim.moicSub.toFixed(2) + "x";
+
+  // === Gráficos ===
+  drawStackedLifecycle(sim.rows, sim.M);
+  drawAssets(sim.rows, sim.M);
+  drawSubordination(sim.rows, sim.M);
+  drawAmortization(sim.rows, sim.M);
+}
+
+function _drawSeparator(svgWidth, height, mInvest, totalMonths, padL, padR){
+  if(totalMonths <= 1) return "";
+  const xSep = padL + (mInvest/(totalMonths-1)) * (svgWidth - padL - padR);
+  return `<line x1="${xSep}" y1="0" x2="${xSep}" y2="${height}" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="4 3" opacity=".6"/>
+    <text x="${xSep+3}" y="14" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">fim invest</text>`;
+}
+
+function drawStackedLifecycle(rows, M){
+  const W=600, H=320, PAD_L=50, PAD_R=10, PAD_T=15, PAD_B=30;
+  const n = rows.length;
+  if(n === 0){ document.getElementById("cf_chart_stack").innerHTML = ""; return; }
+  // pl total empilhado (positivo): sub + mezesp + mez + sen
+  const maxV = Math.max(...rows.map(r=>r.plSen + r.plMez + r.plMezEsp + Math.max(0,r.plSub)));
+  const x = i => PAD_L + (i/Math.max(1,n-1))*(W-PAD_L-PAD_R);
+  const y = v => H-PAD_B - (v/maxV)*(H-PAD_T-PAD_B);
+
+  let svg = "";
+  // Sub (bottom, mas só se positivo)
+  let p1 = `M${PAD_L} ${H-PAD_B}`;
+  rows.forEach((r,i)=>{ p1 += ` L${x(i)} ${y(Math.max(0,r.plSub))}`; });
+  p1 += ` L${x(n-1)} ${H-PAD_B} Z`;
+  svg += `<path d="${p1}" fill="var(--sub)" opacity="0.7"/>`;
+
+  // MezEsp on top of sub
+  const cumMez = rows.map(r=>Math.max(0,r.plSub)+r.plMezEsp);
+  let p2 = "";
+  rows.forEach((r,i)=>{ p2 += (i===0?"M":"L") + x(i) + " " + y(Math.max(0,r.plSub)); });
+  for(let i=n-1;i>=0;i--) p2 += " L"+x(i)+" "+y(cumMez[i]);
+  p2 += " Z";
+  svg += `<path d="${p2}" fill="var(--mezesp)" opacity="0.85"/>`;
+
+  // Mez on top
+  const cumMez2 = rows.map((r,i)=>cumMez[i] + r.plMez);
+  let p3 = "";
+  rows.forEach((r,i)=>{ p3 += (i===0?"M":"L") + x(i) + " " + y(cumMez[i]); });
+  for(let i=n-1;i>=0;i--) p3 += " L"+x(i)+" "+y(cumMez2[i]);
+  p3 += " Z";
+  svg += `<path d="${p3}" fill="var(--mez)" opacity="0.85"/>`;
+
+  // Sen on top
+  const cumSen = rows.map((r,i)=>cumMez2[i] + r.plSen);
+  let p4 = "";
+  rows.forEach((r,i)=>{ p4 += (i===0?"M":"L") + x(i) + " " + y(cumMez2[i]); });
+  for(let i=n-1;i>=0;i--) p4 += " L"+x(i)+" "+y(cumSen[i]);
+  p4 += " Z";
+  svg += `<path d="${p4}" fill="var(--senior)" opacity="0.85"/>`;
+
+  // Separador
+  svg += _drawSeparator(W, H, M, n, PAD_L, PAD_R);
+
+  svg += `<line x1="${PAD_L}" y1="${H-PAD_B}" x2="${W-PAD_R}" y2="${H-PAD_B}" stroke="var(--line)"/>`;
+  svg += `<text x="${PAD_L}" y="${H-10}" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m1</text>`;
+  svg += `<text x="${W-PAD_R}" y="${H-10}" text-anchor="end" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m${n}</text>`;
+  svg += `<text x="6" y="${PAD_T+8}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">${fmtMM(maxV)}</text>`;
+  svg += `<text x="6" y="${H-PAD_B}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">0</text>`;
+
+  document.getElementById("cf_chart_stack").innerHTML = svg;
+}
+
+function drawAssets(rows, M){
+  const W=600, H=320, PAD_L=50, PAD_R=10, PAD_T=15, PAD_B=30;
+  const n = rows.length;
+  if(n === 0){ document.getElementById("cf_chart_assets").innerHTML = ""; return; }
+  const maxV = Math.max(...rows.map(r=>r.carteiraSaldo + r.caixa));
+  const x = i => PAD_L + (i/Math.max(1,n-1))*(W-PAD_L-PAD_R);
+  const y = v => H-PAD_B - (v/maxV)*(H-PAD_T-PAD_B);
+
+  let svg = "";
+  // Caixa (bottom)
+  let p1 = `M${PAD_L} ${H-PAD_B}`;
+  rows.forEach((r,i)=>{ p1 += ` L${x(i)} ${y(Math.max(0,r.caixa))}`; });
+  p1 += ` L${x(n-1)} ${H-PAD_B} Z`;
+  svg += `<path d="${p1}" fill="var(--lime)" opacity="0.5"/>`;
+
+  // Carteira em cima
+  const cum = rows.map(r=>Math.max(0,r.caixa)+r.carteiraSaldo);
+  let p2 = "";
+  rows.forEach((r,i)=>{ p2 += (i===0?"M":"L") + x(i) + " " + y(Math.max(0,r.caixa)); });
+  for(let i=n-1;i>=0;i--) p2 += " L"+x(i)+" "+y(cum[i]);
+  p2 += " Z";
+  svg += `<path d="${p2}" fill="var(--warn)" opacity="0.7"/>`;
+
+  svg += _drawSeparator(W, H, M, n, PAD_L, PAD_R);
+
+  svg += `<line x1="${PAD_L}" y1="${H-PAD_B}" x2="${W-PAD_R}" y2="${H-PAD_B}" stroke="var(--line)"/>`;
+  svg += `<text x="${PAD_L}" y="${H-10}" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m1</text>`;
+  svg += `<text x="${W-PAD_R}" y="${H-10}" text-anchor="end" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m${n}</text>`;
+  svg += `<text x="6" y="${PAD_T+8}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">${fmtMM(maxV)}</text>`;
+  svg += `<text x="6" y="${H-PAD_B}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">0</text>`;
+
+  document.getElementById("cf_chart_assets").innerHTML = svg;
+}
+
+function drawSubordination(rows, M){
+  const W=600, H=240, PAD_L=50, PAD_R=10, PAD_T=15, PAD_B=30;
+  const n = rows.length;
+  if(n === 0){ document.getElementById("cf_chart_inv").innerHTML = ""; return; }
+  // Subordinação = (Mez+Sub) / PL total
+  const subs = rows.map(r=>{
+    const plTotal = r.plSen + r.plMez + r.plMezEsp + Math.max(0, r.plSub);
+    if(plTotal <= 0) return 0;
+    return (r.plMez + r.plMezEsp + Math.max(0,r.plSub)) / plTotal * 100;
+  });
+  const maxV = Math.max(...subs, 35);
+  const x = i => PAD_L + (i/Math.max(1,n-1))*(W-PAD_L-PAD_R);
+  const y = v => H-PAD_B - (v/maxV)*(H-PAD_T-PAD_B);
+  let p = "";
+  subs.forEach((v,i)=>{ p += (i===0?"M":"L") + x(i) + " " + y(v); });
+  let svg = `<defs><linearGradient id="sg" x1="0" x2="0" y1="0" y2="1">
+    <stop offset="0%" stop-color="#b870ff" stop-opacity=".5"/>
+    <stop offset="100%" stop-color="#b870ff" stop-opacity="0"/>
+  </linearGradient></defs>`;
+  svg += `<path d="${p} L${x(n-1)} ${H-PAD_B} L${PAD_L} ${H-PAD_B} Z" fill="url(#sg)"/>`;
+  svg += `<path d="${p}" stroke="var(--sub)" stroke-width="2" fill="none"/>`;
+  svg += _drawSeparator(W, H, M, n, PAD_L, PAD_R);
+  svg += `<line x1="${PAD_L}" y1="${H-PAD_B}" x2="${W-PAD_R}" y2="${H-PAD_B}" stroke="var(--line)"/>`;
+  svg += `<text x="${PAD_L}" y="${H-10}" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m1</text>`;
+  svg += `<text x="${W-PAD_R}" y="${H-10}" text-anchor="end" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m${n}</text>`;
+  svg += `<text x="6" y="${PAD_T+8}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">${fmtBR(maxV,0)}%</text>`;
+  svg += `<text x="6" y="${H-PAD_B}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">0%</text>`;
+  document.getElementById("cf_chart_inv").innerHTML = svg;
+}
+
+function drawAmortization(rows, M){
+  const W=600, H=240, PAD_L=50, PAD_R=10, PAD_T=15, PAD_B=30;
+  const n = rows.length;
+  if(n === 0){ document.getElementById("cf_chart_amort").innerHTML = ""; return; }
+  const amS = rows.map(r=>r.amortSen);
+  const amM = rows.map(r=>r.amortMez + r.amortMezEsp);
+  const amSub = rows.map(r=>r.amortSub + r.liqSub);
+  const maxV = Math.max(...amS, ...amM, ...amSub, 1);
+  const barW = Math.max(2, (W-PAD_L-PAD_R)/n - 1);
+  const x = i => PAD_L + i * ((W-PAD_L-PAD_R)/n);
+  const y = v => H-PAD_B - (v/maxV)*(H-PAD_T-PAD_B);
+  const yBase = H-PAD_B;
+  const w3 = barW/3;
+
+  let svg = "";
+  rows.forEach((r,i)=>{
+    if(r.amortSen > 0)                svg += `<rect x="${x(i)}" y="${y(r.amortSen)}" width="${w3}" height="${yBase-y(r.amortSen)}" fill="var(--senior)"/>`;
+    if(r.amortMez+r.amortMezEsp > 0)  svg += `<rect x="${x(i)+w3}" y="${y(r.amortMez+r.amortMezEsp)}" width="${w3}" height="${yBase-y(r.amortMez+r.amortMezEsp)}" fill="var(--mez)"/>`;
+    if(r.amortSub+r.liqSub > 0)       svg += `<rect x="${x(i)+2*w3}" y="${y(r.amortSub+r.liqSub)}" width="${w3}" height="${yBase-y(r.amortSub+r.liqSub)}" fill="var(--sub)"/>`;
+  });
+
+  svg += _drawSeparator(W, H, M, n, PAD_L, PAD_R);
+  svg += `<line x1="${PAD_L}" y1="${H-PAD_B}" x2="${W-PAD_R}" y2="${H-PAD_B}" stroke="var(--line)"/>`;
+  svg += `<text x="${PAD_L}" y="${H-10}" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m1</text>`;
+  svg += `<text x="${W-PAD_R}" y="${H-10}" text-anchor="end" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m${n}</text>`;
+  svg += `<text x="6" y="${PAD_T+8}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">${fmtMI(maxV)}</text>`;
+
+  document.getElementById("cf_chart_amort").innerHTML = svg;
+}
+
+/* ============================================================
+   RENDER SENS
+   ============================================================ */
+function colorHeat(v){
+  if(v >= 0.025) return "rgba(122,219,143,.3)";
+  if(v >= 0.015) return "rgba(122,219,143,.18)";
+  if(v >= 0.005) return "rgba(128,229,6,.18)";
+  if(v >= 0) return "rgba(255,160,64,.18)";
+  if(v >= -0.01) return "rgba(255,90,90,.22)";
+  return "rgba(255,90,90,.42)";
+}
+function colorHeatText(v){
+  if(v < 0) return "#ff5a5a";
+  return "var(--ink)";
+}
+function renderSens(){
+  const pdds = [0, 0.05, 0.10, 0.20, 0.40, 0.60, 1.00];
+  const wos = [0, 0.5, 1, 1.5, 2, 3];
+  let h1 = "<thead><tr><th>pdd ↓ / wo →</th>";
+  wos.forEach(w=> h1 += `<th>${fmtPct(w)}</th>`);
+  h1 += "</tr></thead><tbody>";
+  pdds.forEach(p=>{
+    h1 += `<tr><td>${fmtPct(p)}</td>`;
+    wos.forEach(w=>{
+      const m = engine.monthly(S, {pdd:p, wo:w});
+      const v = m.rentSubAm;
+      h1 += `<td style="background:${colorHeat(v)};color:${colorHeatText(v)}">${fmtPct(v*100)}</td>`;
+    });
+    h1 += "</tr>";
+  });
+  h1 += "</tbody>";
+  document.getElementById("heat1").innerHTML = h1;
+
+  const dcs = [1.5, 1.8, 2.0, 2.2, 2.5, 2.8, 3.2];
+  let h2 = "<thead><tr><th>pdd ↓ / dc →</th>";
+  dcs.forEach(d=> h2 += `<th>${fmtPct(d)}</th>`);
+  h2 += "</tr></thead><tbody>";
+  pdds.forEach(p=>{
+    h2 += `<tr><td>${fmtPct(p)}</td>`;
+    dcs.forEach(d=>{
+      const m = engine.monthly(S, {pdd:p, dc:d});
+      const v = m.rentSubAm;
+      h2 += `<td style="background:${colorHeat(v)};color:${colorHeatText(v)}">${fmtPct(v*100)}</td>`;
+    });
+    h2 += "</tr>";
+  });
+  h2 += "</tbody>";
+  document.getElementById("heat2").innerHTML = h2;
+
+  const pddRange = [];
+  for(let p=0; p<=1.5; p+=0.02) pddRange.push(p);
+  const pts = pddRange.map(p=> engine.monthly(S,{pdd:p}).rentSubAm);
+  const minY = Math.min(...pts, 0);
+  const maxY = Math.max(...pts);
+  const W=600, H=240, PAD=30;
+  const x = i => PAD + (i/(pts.length-1))*(W-2*PAD);
+  const y = v => H - PAD - ((v-minY)/((maxY-minY)||1))*(H-2*PAD);
+  let path = "";
+  pts.forEach((v,i)=>{ path += (i===0?"M":"L") + x(i) + " " + y(v); });
+  const yZero = y(0);
+  document.getElementById("chart1").innerHTML = `
+    <defs>
+      <linearGradient id="cgrad" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#80e506" stop-opacity=".4"/>
+        <stop offset="100%" stop-color="#80e506" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <line x1="${PAD}" y1="${yZero}" x2="${W-PAD}" y2="${yZero}" stroke="#ff5a5a" stroke-width="1" stroke-dasharray="3 3" opacity=".6"/>
+    <text x="${W-PAD-2}" y="${yZero-4}" text-anchor="end" fill="#ff5a5a" font-family="JetBrains Mono" font-size="9">breakeven 0%</text>
+    <path d="${path} L${x(pts.length-1)} ${H-PAD} L${x(0)} ${H-PAD} Z" fill="url(#cgrad)"/>
+    <path d="${path}" stroke="#80e506" stroke-width="2" fill="none"/>
+    <text x="${PAD}" y="${H-8}" fill="#6e6e66" font-family="JetBrains Mono" font-size="9">PDD: 0%</text>
+    <text x="${W-PAD}" y="${H-8}" text-anchor="end" fill="#6e6e66" font-family="JetBrains Mono" font-size="9">PDD: 1,5%</text>
+    <text x="6" y="${PAD-4}" fill="#a8a89e" font-family="JetBrains Mono" font-size="9">${fmtPct(maxY*100)}</text>
+    <text x="6" y="${H-PAD}" fill="#a8a89e" font-family="JetBrains Mono" font-size="9">${fmtPct(minY*100)}</text>
+  `;
+
+  const st = engine.structure(S);
+  const layers = [
+    {n:"Sub Júnior (1ª)", v: st.sub, acc: st.sub, cls:"sub"},
+    {n:"+ Mez. Especial", v: st.mezEsp, acc: st.sub+st.mezEsp, cls:"mezesp"},
+    {n:"+ Mezanino", v: st.mez, acc: st.sub+st.mezEsp+st.mez, cls:"mez"},
+    {n:"+ Sênior (total)", v: st.sen, acc: st.pl, cls:"senior"},
+  ];
+  document.getElementById("buf2").innerHTML = layers.map(l=>{
+    const w = l.acc/st.pl*100;
+    return `<div class="buf-row">
+      <div class="buf-name">${l.n}</div>
+      <div class="buf-bar"><div class="buf-fill ${l.cls}" style="width:${Math.max(w,3)}%">${fmtPct(w)}</div></div>
+      <div class="buf-val">${fmtMM(l.acc)}</div>
+    </div>`;
+  }).join("");
+}
+
+/* ============================================================
+   RENDER CCB
+   ============================================================ */
+function renderCCB(){
+  document.getElementById("v_ccb_p").textContent = "R$ " + S.ccbP.toLocaleString("pt-BR");
+  document.getElementById("v_ccb_t").textContent = fmtPct(S.ccbT);
+  document.getElementById("v_ccb_n").textContent = S.ccbN + " m";
+  document.getElementById("v_ccb_car").textContent = S.ccbCar + " m";
+  document.getElementById("v_ccb_ago").textContent = fmtPct(S.ccbAgio||0);
+  document.getElementById("v_ccb_pp").textContent = fmtPct(S.ccbPP||0);
+
+  // Cap pré-pagamento ao prazo do empréstimo
+  const ppMaxMes = Math.max(0, (S.ccbN || 36) - 1);
+  if((S.ccbPPStart||0) > ppMaxMes){
+    S.ccbPPStart = ppMaxMes;
+    const slider = document.getElementById("i_ccb_pps");
+    if(slider) slider.value = ppMaxMes;
+  }
+  const ppSlider = document.getElementById("i_ccb_pps");
+  if(ppSlider) ppSlider.max = ppMaxMes;
+  const ppLbl = document.getElementById("v_ccb_pps");
+  if(ppLbl){
+    if((S.ccbPPStart||0) === 0) ppLbl.textContent = "desligado";
+    else if(S.ccbPPStart >= S.ccbN) ppLbl.textContent = "fora do prazo";
+    else ppLbl.textContent = "mês "+S.ccbPPStart+" de "+S.ccbN;
+  }
+
+  const r = engine.ccbSchedule(S);
+
+  // === CARDS ===
+  document.getElementById("ccb_pmt1").textContent = fmtMoney(r.rows[0]?.pmt || 0);
+  document.getElementById("ccb_pmt_desc").textContent = S.ccbCar > 0 ? "(carência ativa)" : ({price:"price",sac:"sac",bullet:"bullet"})[S.ccbSis];
+  document.getElementById("ccb_vp_contrato").textContent = fmtMoney(r.valorContrato);
+  document.getElementById("ccb_vp_cessao").textContent = fmtMoney(r.valorPago);
+  const vpInline = document.getElementById("v_ccb_vpcessao");
+  if(vpInline) vpInline.textContent = fmtMoney(r.valorPago);
+  document.getElementById("ccb_agio_abs").textContent = "ágio " + fmtMoney(r.agioAbs);
+  document.getElementById("ccb_total").textContent = fmtMoney(r.totalPmt);
+  document.getElementById("ccb_total_desc").textContent = "juros " + fmtMoney(r.totalJuros);
+  document.getElementById("ccb_tir_aa").textContent = fmtPct(r.tirAa);
+  document.getElementById("ccb_tir").textContent = fmtPct(r.tirAm) + " a.m.";
+  document.getElementById("ccb_dur").textContent = fmtBR(r.dur, 1);
+
+  // === TABELA EXEMPLAR ===
+  document.getElementById("ccb_body").innerHTML = r.rows.map(row=>`
+    <tr>
+      <td>${String(row.mes).padStart(2,"0")}</td>
+      <td>${fmtMoney(row.ini)}</td>
+      <td class="neg">${fmtMoney(row.juros)}</td>
+      <td class="pos">${fmtMoney(row.amort)}</td>
+      <td class="${row.prepay>0?'pos':''}">${row.prepay>0?fmtMoney(row.prepay):'—'}</td>
+      <td>${fmtMoney(row.pmt)}</td>
+      <td>${fmtMoney(row.fim)}</td>
+      <td>${fmtPct(row.pctPago)}</td>
+      <td style="color:var(--ink-3);font-size:10px">${row.obs||""}</td>
+    </tr>`).join("");
+
+  // === GRÁFICO CONTRATO vs CESSÃO ===
+  const W=600, H=240, PAD_L=50, PAD_R=10, PAD_T=15, PAD_B=30;
+  const n = r.rows.length;
+  if(n > 0){
+    const saldosContrato = [r.valorContrato, ...r.rows.map(x=>x.fim)];
+    const saldosCessao = [r.valorPago, ...r.rowsCessao.map(x=>x.saldoCessao)];
+    const jurosAc = [0];
+    let acj = 0; r.rows.forEach(x=>{ acj += x.juros; jurosAc.push(acj); });
+    const maxV = Math.max(r.valorPago, Math.max(...jurosAc));
+    const npts = saldosContrato.length;
+    const x = i => PAD_L + (i/(npts-1))*(W-PAD_L-PAD_R);
+    const y = v => H-PAD_B - (v/maxV)*(H-PAD_T-PAD_B);
+
+    let pathC = ""; saldosContrato.forEach((v,i)=>{ pathC += (i===0?"M":"L") + x(i) + " " + y(v); });
+    let pathCe = ""; saldosCessao.forEach((v,i)=>{ pathCe += (i===0?"M":"L") + x(i) + " " + y(v); });
+    let pathJ = ""; jurosAc.forEach((v,i)=>{ pathJ += (i===0?"M":"L") + x(i) + " " + y(v); });
+
+    // gridlines verticais (divisórias)
+    const nGrid = Math.min(12, n);
+    let grid = "";
+    for(let g=0; g<=nGrid; g++){
+      const gx = PAD_L + (g/nGrid)*(W-PAD_L-PAD_R);
+      const gMes = Math.round(g/nGrid * n);
+      grid += `<line x1="${gx}" y1="${PAD_T}" x2="${gx}" y2="${H-PAD_B}" stroke="var(--line)" stroke-width="0.5" opacity="0.5"/>`;
+      if(g>0 && g<nGrid){
+        grid += `<text x="${gx}" y="${H-12}" text-anchor="middle" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="8">m${gMes}</text>`;
+      }
+    }
+
+    document.getElementById("ccb_chart").innerHTML = `
+      <defs><linearGradient id="ccbgrad" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#80e506" stop-opacity=".25"/>
+        <stop offset="100%" stop-color="#80e506" stop-opacity="0"/>
+      </linearGradient></defs>
+      ${grid}
+      <path d="${pathC} L${x(npts-1)} ${H-PAD_B} L${PAD_L} ${H-PAD_B} Z" fill="url(#ccbgrad)"/>
+      <path d="${pathC}" stroke="var(--lime)" stroke-width="2" fill="none"/>
+      <path d="${pathCe}" stroke="var(--warn)" stroke-width="2" fill="none" stroke-dasharray="4 2"/>
+      <path d="${pathJ}" stroke="var(--ink-3)" stroke-width="1.5" fill="none" stroke-dasharray="2 3"/>
+      <line x1="${PAD_L}" y1="${H-PAD_B}" x2="${W-PAD_R}" y2="${H-PAD_B}" stroke="var(--line)"/>
+      <text x="${PAD_L}" y="${H-2}" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m0</text>
+      <text x="${W-PAD_R}" y="${H-2}" text-anchor="end" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m${n}</text>
+      <text x="6" y="${PAD_T+8}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">${fmtMI(maxV)}</text>
+      <text x="6" y="${H-PAD_B}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">R$ 0</text>
+    `;
+  }
+
+  // === TABELA DE COMPRAS PELO FUNDO (vinda da simulação completa) ===
+  const sim = engine.simulate(S);
+  const comprasBody = document.getElementById("ccb_compras_body");
+  if(comprasBody){
+    comprasBody.innerHTML = sim.rows.map(row=>{
+      const caixaDisp = Math.max(0, row.caixa - row.cashMinAtual);
+      const agioPago = row.pagoAoOriginador - row.originado;
+      return `<tr>
+        <td>${String(row.mes).padStart(2,"0")}</td>
+        <td style="color:${row.fase==='investimento'?'var(--lime)':'var(--warn)'};font-size:10px">${row.fase}</td>
+        <td>${fmtMI(caixaDisp)}</td>
+        <td class="${row.qtdCcbsCompradas>0?'pos':''}">${row.qtdCcbsCompradas>0?row.qtdCcbsCompradas:'—'}</td>
+        <td>${row.pagoAoOriginador>0?fmtMI(row.pagoAoOriginador):'—'}</td>
+        <td>${row.originado>0?fmtMI(row.originado):'—'}</td>
+        <td>${agioPago>0?fmtMI(agioPago):'—'}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  // === GRÁFICO CARTEIRA × CAIXA ===
+  const carteiraChart = document.getElementById("ccb_carteira_chart");
+  if(carteiraChart){
+    const rows2 = sim.rows;
+    const n2 = rows2.length;
+    if(n2 > 0){
+      const W2=600, H2=320, PAD_L2=50, PAD_R2=10, PAD_T2=15, PAD_B2=30;
+      const maxV2 = Math.max(...rows2.map(r=>r.carteiraSaldo + Math.max(0,r.caixa)), 1);
+      const x2 = i => PAD_L2 + (i/Math.max(1,n2-1))*(W2-PAD_L2-PAD_R2);
+      const y2 = v => H2-PAD_B2 - (v/maxV2)*(H2-PAD_T2-PAD_B2);
+      // Empilhado: carteira no fundo, caixa em cima
+      let p1 = `M${PAD_L2} ${H2-PAD_B2}`;
+      rows2.forEach((r,i)=>{ p1 += ` L${x2(i)} ${y2(r.carteiraSaldo)}`; });
+      p1 += ` L${x2(n2-1)} ${H2-PAD_B2} Z`;
+
+      const cum = rows2.map(r=>r.carteiraSaldo + Math.max(0,r.caixa));
+      let p2 = "";
+      rows2.forEach((r,i)=>{ p2 += (i===0?"M":"L") + x2(i) + " " + y2(r.carteiraSaldo); });
+      for(let i=n2-1;i>=0;i--) p2 += " L"+x2(i)+" "+y2(cum[i]);
+      p2 += " Z";
+
+      // separador investimento/amortização
+      let sep = "";
+      if(sim.M < n2){
+        const xs = x2(sim.M-1);
+        sep = `<line x1="${xs}" y1="${PAD_T2}" x2="${xs}" y2="${H2-PAD_B2}" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="4 3" opacity=".6"/>
+               <text x="${xs+3}" y="14" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">fim invest</text>`;
+      }
+
+      carteiraChart.innerHTML = `
+        <path d="${p1}" fill="var(--warn)" opacity="0.65"/>
+        <path d="${p2}" fill="var(--lime)" opacity="0.45"/>
+        ${sep}
+        <line x1="${PAD_L2}" y1="${H2-PAD_B2}" x2="${W2-PAD_R2}" y2="${H2-PAD_B2}" stroke="var(--line)"/>
+        <text x="${PAD_L2}" y="${H2-10}" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m1</text>
+        <text x="${W2-PAD_R2}" y="${H2-10}" text-anchor="end" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">m${n2}</text>
+        <text x="6" y="${PAD_T2+8}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">${fmtMM(maxV2)}</text>
+        <text x="6" y="${H2-PAD_B2}" fill="var(--ink-2)" font-family="JetBrains Mono" font-size="9">0</text>
+      `;
+    }
+  }
+}
+
+/* ============================================================
+   DI — PERSISTÊNCIA LOCAL (localStorage)
+   ============================================================ */
+const DI_STORAGE_KEY = "fidc_di_curve_v1";
+
+function saveDIToStorage(){
+  try{
+    const payload = {
+      curve: S.diCurve,
+      meta: S.diMeta,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(DI_STORAGE_KEY, JSON.stringify(payload));
+  } catch(e){
+    console.warn("localStorage indisponível:", e.message);
+  }
+}
+function loadDIFromStorage(){
+  try{
+    const raw = localStorage.getItem(DI_STORAGE_KEY);
+    if(!raw) return false;
+    const payload = JSON.parse(raw);
+    if(payload.curve && Array.isArray(payload.curve) && payload.curve.length >= 2){
+      S.diCurve = payload.curve;
+      S.diMeta = payload.meta || S.diMeta;
+      return true;
+    }
+  } catch(e){
+    console.warn("erro lendo localStorage:", e.message);
+  }
+  return false;
+}
+function clearDIStorage(){
+  try{ localStorage.removeItem(DI_STORAGE_KEY); } catch(e){}
+}
+function fmtDateISO(iso){
+  if(!iso) return "—";
+  try{
+    const d = new Date(iso);
+    return d.toLocaleString("pt-BR", {day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  } catch(e){ return "—"; }
+}
+
+/* ============================================================
+   RENDER DI
+   ============================================================ */
+function renderDI(){
+  // Metadata inline (substitui card "memória da curva")
+  const meta = document.getElementById("di_meta_inline");
+  if(meta){
+    const updated = S.diMeta?.updatedAt ? fmtDateISO(S.diMeta.updatedAt) : "—";
+    const fonte = S.diMeta?.fonte || "padrão";
+    const dataBase = S.diMeta?.dataBase || "";
+    meta.textContent = `${S.diCurve.length} vértices · ${fonte}${dataBase ? " · "+dataBase : ""} · ${updated}`;
+  }
+
+  const body = document.getElementById("di_body");
+  const c = [...S.diCurve].sort((a,b)=>a.m-b.m);
+  body.innerHTML = c.map((row, idx)=>{
+    const realIdx = S.diCurve.indexOf(row);
+    // FRA: forward rate entre vértice anterior e atual (calculada em DU)
+    const fra = idx === 0 ? row.t : (()=>{
+      const prev = c[idx-1];
+      // Convertemos os prazos em DU para anos: DU/252
+      const t0 = prev.m / 252;
+      const t1 = row.m / 252;
+      const acc0 = Math.pow(1+prev.t/100, t0);
+      const acc1 = Math.pow(1+row.t/100, t1);
+      const dt = t1 - t0;
+      if(dt <= 0) return row.t;
+      return (Math.pow(acc1/acc0, 1/dt) - 1) * 100;
+    })();
+    return `<tr>
+      <td><input type="number" min="1" step="1" value="${row.m}" data-di="${realIdx}" data-di-field="m"></td>
+      <td><input type="number" step="0.01" value="${row.t}" data-di="${realIdx}" data-di-field="t"></td>
+      <td style="color:var(--ink-3);padding:6px 9px">${fmtPct(fra)}</td>
+      <td class="action"><button class="del-btn" data-di-del="${realIdx}">×</button></td>
+    </tr>`;
+  }).join("");
+
+  document.querySelectorAll('[data-di]').forEach(el=>{
+    el.addEventListener("input", e=>{
+      const idx = parseInt(e.target.dataset.di);
+      const field = e.target.dataset.diField;
+      const v = parseFloat(e.target.value) || 0;
+      S.diCurve[idx][field] = v;
+      S.diMeta.fonte = "manual";
+      S.diMeta.updatedAt = new Date().toISOString();
+      saveDIToStorage();
+      renderDI();
+      renderCashflow();
+    });
+  });
+  document.querySelectorAll('[data-di-del]').forEach(el=>{
+    el.addEventListener("click", ()=>{
+      if(S.diCurve.length <= 2){ toast("mantenha pelo menos 2 vértices", "error"); return; }
+      const idx = parseInt(el.dataset.diDel);
+      S.diCurve.splice(idx, 1);
+      S.diMeta.fonte = "manual";
+      S.diMeta.updatedAt = new Date().toISOString();
+      saveDIToStorage();
+      renderDI();
+      renderCashflow();
+    });
+  });
+
+  // === CHART ===
+  const W=600, H=240, PAD_L=44, PAD_R=10, PAD_T=15, PAD_B=34;
+  const maxDU = Math.max(...c.map(p=>p.m), 252);
+  // Amostragem mais densa para curva suave
+  const allRates = [];
+  const step = Math.max(1, Math.floor(maxDU/120));
+  for(let du=1; du<=maxDU; du+=step) allRates.push({m:du, t: diRateAaByDU(du)});
+  const minT = Math.min(...allRates.map(r=>r.t)) * 0.97;
+  const maxT = Math.max(...allRates.map(r=>r.t)) * 1.03;
+  const range = maxT - minT;
+  const xp = du => PAD_L + (du/maxDU)*(W-PAD_L-PAD_R);
+  const yp = v => H-PAD_B - ((v-minT)/range)*(H-PAD_T-PAD_B);
+
+  let path = "";
+  allRates.forEach((r,i)=>{ path += (i===0?"M":"L") + xp(r.m) + " " + yp(r.t); });
+
+  let svg = `<defs><linearGradient id="dig" x1="0" x2="0" y1="0" y2="1">
+    <stop offset="0%" stop-color="#80e506" stop-opacity=".3"/>
+    <stop offset="100%" stop-color="#80e506" stop-opacity="0"/>
+  </linearGradient></defs>`;
+
+  // Grid vertical e rótulos do eixo X (em meses, mais fácil de ler)
+  // Definir ~6-8 rótulos: 3m, 6m, 12m, 24m, 36m, 48m, 60m (em DU: 63, 126, 252, ...)
+  const xLabels = [
+    {du:21,   lbl:"1m"},
+    {du:63,   lbl:"3m"},
+    {du:126,  lbl:"6m"},
+    {du:252,  lbl:"1a"},
+    {du:504,  lbl:"2a"},
+    {du:756,  lbl:"3a"},
+    {du:1008, lbl:"4a"},
+    {du:1260, lbl:"5a"},
+    {du:1764, lbl:"7a"},
+    {du:2520, lbl:"10a"},
+  ].filter(g => g.du <= maxDU);
+  xLabels.forEach(g=>{
+    const x = xp(g.du);
+    svg += `<line x1="${x}" y1="${PAD_T}" x2="${x}" y2="${H-PAD_B}" stroke="var(--line)" stroke-width="0.5" opacity="0.5"/>`;
+    svg += `<text x="${x}" y="${H-PAD_B+14}" text-anchor="middle" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">${g.lbl}</text>`;
+    svg += `<text x="${x}" y="${H-PAD_B+24}" text-anchor="middle" fill="var(--ink-4)" font-family="JetBrains Mono" font-size="8">${g.du}du</text>`;
+  });
+
+  // Rótulos do eixo Y
+  const yTicks = 4;
+  for(let yi=0; yi<=yTicks; yi++){
+    const v = minT + (range * yi/yTicks);
+    const y = yp(v);
+    svg += `<line x1="${PAD_L}" y1="${y}" x2="${W-PAD_R}" y2="${y}" stroke="var(--line)" stroke-width="0.5" opacity="0.3"/>`;
+    svg += `<text x="${PAD_L-4}" y="${y+3}" text-anchor="end" fill="var(--ink-3)" font-family="JetBrains Mono" font-size="9">${fmtBR(v,1)}%</text>`;
+  }
+
+  svg += `<path d="${path} L${xp(allRates[allRates.length-1].m)} ${H-PAD_B} L${xp(allRates[0].m)} ${H-PAD_B} Z" fill="url(#dig)"/>`;
+  svg += `<path d="${path}" stroke="#80e506" stroke-width="2" fill="none"/>`;
+  // Vértices
+  c.forEach(p=>{
+    svg += `<circle cx="${xp(p.m)}" cy="${yp(p.t)}" r="3" fill="#a5ff20" stroke="#0a0a0a" stroke-width="1.5"/>`;
+  });
+  svg += `<line x1="${PAD_L}" y1="${H-PAD_B}" x2="${W-PAD_R}" y2="${H-PAD_B}" stroke="#3a3a3a"/>`;
+  svg += `<line x1="${PAD_L}" y1="${PAD_T}" x2="${PAD_L}" y2="${H-PAD_B}" stroke="#3a3a3a"/>`;
+
+  const chartEl = document.getElementById("di_chart");
+  chartEl.innerHTML = svg;
+
+  // === TOOLTIP ===
+  const tooltip = document.getElementById("di_tooltip");
+  if(chartEl && tooltip && typeof chartEl.cloneNode === "function" && chartEl.parentNode){
+    // Remover handlers anteriores clonando
+    const newChart = chartEl.cloneNode(true);
+    chartEl.parentNode.replaceChild(newChart, chartEl);
+    newChart.addEventListener("mousemove", e=>{
+      const rect = newChart.getBoundingClientRect();
+      // Posição em coordenadas SVG (viewBox 0 0 600 240)
+      const xPct = (e.clientX - rect.left) / rect.width;
+      const yPct = (e.clientY - rect.top) / rect.height;
+      const xSVG = xPct * W;
+      // Inverter projeção: xSVG → du
+      if(xSVG < PAD_L || xSVG > W-PAD_R){
+        tooltip.style.display = "none";
+        return;
+      }
+      const du = ((xSVG - PAD_L)/(W-PAD_L-PAD_R)) * maxDU;
+      const taxaAa = diRateAaByDU(du);
+      const taxaAm = (Math.pow(1+taxaAa/100, 1/12) - 1) * 100;
+      // Vértice mais próximo
+      let closest = c[0], minDist = Infinity;
+      for(const p of c){
+        const d = Math.abs(p.m - du);
+        if(d < minDist){ minDist = d; closest = p; }
+      }
+      const meses = (du / 21).toFixed(1);
+      tooltip.innerHTML = `
+        <div style="color:var(--lime);font-weight:600;margin-bottom:3px">${Math.round(du)} du · ${meses}m</div>
+        <div style="color:var(--ink-2)">taxa a.a.: <b style="color:var(--ink)">${fmtPct(taxaAa)}</b></div>
+        <div style="color:var(--ink-2)">taxa a.m.: <b style="color:var(--ink)">${fmtPct(taxaAm)}</b></div>
+        <div style="color:var(--ink-3);margin-top:3px;font-size:10px">vértice próx: ${closest.m}du @ ${fmtPct(closest.t)}</div>
+      `;
+      tooltip.style.display = "block";
+      // Posicionamento relativo ao chart-wrap
+      const wrap = newChart.parentNode;
+      const wrapRect = wrap.getBoundingClientRect();
+      const localX = e.clientX - wrapRect.left;
+      const localY = e.clientY - wrapRect.top;
+      const tipW = 180, tipH = 80;
+      let posX = localX + 12;
+      let posY = localY - tipH - 6;
+      if(posX + tipW > wrapRect.width) posX = localX - tipW - 12;
+      if(posY < 0) posY = localY + 12;
+      tooltip.style.left = posX + "px";
+      tooltip.style.top = posY + "px";
+    });
+    newChart.addEventListener("mouseleave", ()=>{
+      tooltip.style.display = "none";
+    });
+  }
+
+  // === Forward stats ===
+  document.getElementById("cdi_1m").textContent = fmtPct(cdiForwardMonthly(1)*100);
+  document.getElementById("cdi_6m").textContent = fmtPct(cdiForwardMonthly(6)*100);
+  document.getElementById("cdi_12m").textContent = fmtPct(cdiForwardMonthly(12)*100);
+  document.getElementById("cdi_24m").textContent = fmtPct(cdiForwardMonthly(24)*100);
+  document.getElementById("cdi_36m").textContent = fmtPct(cdiForwardMonthly(36)*100);
+  document.getElementById("cdi_avg24").textContent = fmtPct(cdiMedio24()*100);
+}
+
+document.getElementById("btn_di_add").addEventListener("click", ()=>{
+  const last = S.diCurve.length > 0 ? S.diCurve[S.diCurve.length-1] : {m:21, t:14};
+  S.diCurve.push({m: last.m + 252, t: last.t});  // +1 ano em DU
+  S.diMeta.fonte = "manual";
+  S.diMeta.updatedAt = new Date().toISOString();
+  saveDIToStorage();
+  renderDI(); renderCashflow();
+});
+document.getElementById("btn_di_reset").addEventListener("click", ()=>{
+  if(!confirm("Resetar a curva DI para os valores padrão?")) return;
+  S.diCurve = [
+    {m:21, t:14.85},{m:63, t:14.72},{m:126, t:14.50},
+    {m:252, t:14.10},{m:504, t:13.80},{m:756, t:13.60},
+    {m:1008, t:13.50},{m:1260, t:13.45},
+  ];
+  S.diMeta = {updatedAt: null, dataBase: "", fonte: "padrão", rawPaste: ""};
+  clearDIStorage();
+  renderDI(); renderCashflow();
+  toast("curva resetada", "ok");
+});
+
+// Importar CSV B3
+document.getElementById("btn_di_import_csv").addEventListener("click", ()=>{
+  document.getElementById("file_di_csv").click();
+});
+document.getElementById("file_di_csv").addEventListener("change", e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try{
+      const txt = ev.target.result;
+      const parsed = parseB3CSV(txt);
+      if(parsed.length < 2){
+        toast("csv não reconhecido (precisa de 2+ linhas DI)", "error");
+        return;
+      }
+      // Dedupe e ordena
+      const map = new Map();
+      parsed.forEach(p=> map.set(p.m, p.t));
+      S.diCurve = Array.from(map.entries()).map(([m,t])=>({m, t})).sort((a,b)=>a.m-b.m);
+      S.diMeta = {
+        updatedAt: new Date().toISOString(),
+        dataBase: extractDateFromCSV(txt) || S.diMeta?.dataBase || "",
+        fonte: "b3 csv",
+        filename: file.name
+      };
+      saveDIToStorage();
+      renderDI(); renderCashflow();
+      toast(`curva importada: ${S.diCurve.length} vértices`, "ok");
+    } catch(err){
+      console.error(err);
+      toast("erro ao parsear csv: " + err.message, "error");
+    }
+    e.target.value = "";
+  };
+  reader.readAsText(file, "utf-8");
+});
+
+// Parser específico do formato B3 (mas tolerante a variações)
+function parseB3CSV(txt){
+  const lines = txt.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length > 0);
+  const parsed = [];
+  let colDU = 1, colTaxa = 3;  // defaults B3: Descrição;DU;DC;Taxa
+
+  // Decidir separador globalmente baseado na primeira linha não-vazia que tenha algum.
+  // Prioridade: ; (B3), \t (TSV), depois , (CSV). Importante: se há ";", a vírgula é decimal BR.
+  let sep = ";";
+  for(const line of lines){
+    if(line.includes(";")){ sep = ";"; break; }
+    if(line.includes("\t")){ sep = "\t"; break; }
+    if(line.includes(",")){
+      // Heurística: se há mais de uma vírgula e nenhum ;/\t, é CSV vírgula
+      sep = ",";
+      break;
+    }
+  }
+
+  function parseNum(s, sepIsComma){
+    if(!s) return NaN;
+    s = s.trim();
+    if(sepIsComma){
+      // sep CSV é vírgula, então decimais devem estar com ponto
+      return parseFloat(s);
+    } else {
+      // sep ; ou \t, vírgula é decimal BR. Pontos podem ser separadores de milhar.
+      // Remove pontos só se houver vírgula presente (formato BR clássico: 1.234,56)
+      const hasComma = s.includes(",");
+      const cleaned = hasComma ? s.replace(/\./g, "").replace(",", ".") : s;
+      return parseFloat(cleaned);
+    }
+  }
+  const sepIsComma = sep === ",";
+
+  for(const line of lines){
+    // Detectar header
+    if(/dias.?[úu]teis|pre[çc]o.?taxa|descri[çc][ãa]o/i.test(line)){
+      const cols = line.split(sep).map(c=>c.trim().toLowerCase());
+      cols.forEach((c, idx)=>{
+        if(/dias.?[úu]teis|dias.?uteis/i.test(c)) colDU = idx;
+        else if(/pre[çc]o|taxa/i.test(c) && !/descri/i.test(c)) colTaxa = idx;
+      });
+      continue;
+    }
+    // Skip linhas de metadado (ex: "Data de referência: ...")
+    if(/^[a-zA-ZçÇ\s]+:/i.test(line) && !line.includes(sep)) continue;
+    // Linha de dados
+    const cols = line.split(sep).map(c=>c.trim());
+    if(cols.length < 2) continue;
+    let du, taxa;
+    if(cols.length >= 4){
+      du = parseNum(cols[colDU], sepIsComma);
+      taxa = parseNum(cols[colTaxa], sepIsComma);
+    } else if(cols.length >= 2){
+      // sem header conhecido: pega as duas primeiras colunas numéricas
+      const nums = cols.map(c=>parseNum(c, sepIsComma)).filter(x=>isFinite(x));
+      if(nums.length >= 2){ du = nums[0]; taxa = nums[1]; }
+    }
+    if(isFinite(du) && isFinite(taxa) && du > 0 && taxa > 0 && taxa < 50){
+      parsed.push({m: Math.round(du), t: taxa});
+    }
+  }
+  return parsed;
+}
+
+// Tenta extrair data base do CSV (linha que parece "26/05/2026" ou "Data: 26/05/2026")
+function extractDateFromCSV(txt){
+  const m = txt.match(/(\d{2}\/\d{2}\/\d{4})/);
+  return m ? m[1] : null;
+}
+
+/* ============================================================
+   CHECKLIST — ROADMAP COMPLETO
+   ============================================================ */
+const checklistFull = [
+  // Mandato
+  {ph:"Mandato", n:"Apresentação institucional", crit:false, desc:"Conversa inicial e PPT institucional da Gestora"},
+  {ph:"Mandato", n:"Validação interna do mandato", crit:false, desc:"Análise interna de fit estratégico"},
+  {ph:"Mandato", n:"Proposta comercial e valores", crit:false, desc:"PPT secundária com proposta detalhada"},
+  {ph:"Mandato", n:"Diagnóstico, benefícios e custos", crit:false, desc:"Material consolidado para o cliente"},
+  {ph:"Mandato", n:"Modelo Financeiro v1 (preliminar)", crit:false, desc:"Primeira modelagem indicativa"},
+  {ph:"Mandato", n:"Alinhamento Non-Deal × Deal", crit:false, desc:"Explicação das fases ao cliente"},
+  {ph:"Mandato", n:"Envio formal da proposta (PDF)", crit:false, desc:"Documento final para aprovação"},
+  {ph:"Mandato", n:"Aceite do cliente e dados dos signatários", crit:true, desc:"Confirmação para assinatura"},
+  {ph:"Mandato", n:"Assinatura do mandato pela Gestora", crit:false, desc:"Formalização do compromisso"},
+
+  // Non-Deal Roadshow
+  {ph:"Non-Deal Roadshow", n:"KYC do Originador", crit:false, desc:"Contrato Social, docs com foto, demonstrações financeiras"},
+  {ph:"Non-Deal Roadshow", n:"Cotações de Administradoras", crit:false, desc:"Solicitar propostas a administradores"},
+  {ph:"Non-Deal Roadshow", n:"Cotação Legal Advisor", crit:false, desc:"Se necessário escritório de apoio"},
+  {ph:"Non-Deal Roadshow", n:"PPT para interação com o cliente", crit:false, desc:"Materiais de apresentação refinados"},
+  {ph:"Non-Deal Roadshow", n:"Análise da empresa e empreendedores", crit:false, desc:"Dossiê de operação e equipe"},
+  {ph:"Non-Deal Roadshow", n:"Estudo da carteira atual e escalabilidade", crit:false, desc:"Ativos vigentes e potencial de crescimento"},
+  {ph:"Non-Deal Roadshow", n:"Modelo Financeiro v2 (refinado)", crit:false, desc:"Modelo com dados reais do originador"},
+  {ph:"Non-Deal Roadshow", n:"Term Sheet preliminar", crit:false, desc:"Condições econômicas indicativas"},
+  {ph:"Non-Deal Roadshow", n:"Definir estrutura (aberto/fechado, IQ/IP/varejo, rating)", crit:false, desc:"Decisões macro sobre o veículo"},
+  {ph:"Non-Deal Roadshow", n:"Estrutura de subordinação", crit:false, desc:"Sênior / Mez / Sub Júnior e proporções"},
+  {ph:"Non-Deal Roadshow", n:"Oportunidade ao investidor (pitch)", crit:false, desc:"Tese de investimento"},
+  {ph:"Non-Deal Roadshow", n:"Pitch 1-2 páginas em PDF", crit:false, desc:"Versão sintética para distribuição"},
+  {ph:"Non-Deal Roadshow", n:"Slide institucional da Gestora", crit:false, desc:"Material acompanhante"},
+  {ph:"Non-Deal Roadshow", n:"Rodada de Non-Deal Roadshow", crit:true, desc:"Sondagem de demanda com investidores"},
+  {ph:"Non-Deal Roadshow", n:"MoU com investidor âncora", crit:false, desc:"Compromisso preliminar formalizado"},
+
+  // Estruturação do Deal
+  {ph:"Estruturação do Deal", n:"Seleção e contratação da Administradora", crit:true, desc:"Definição final do prestador"},
+  {ph:"Estruturação do Deal", n:"Envio do KYC do Originador para ADM", crit:false, desc:"Compliance da administradora"},
+  {ph:"Estruturação do Deal", n:"Envio do KYC do(s) Cedente(s) para ADM", crit:false, desc:"Compliance dos cedentes"},
+  {ph:"Estruturação do Deal", n:"Seleção do Legal Advisor", crit:true, desc:"Escolha do escritório jurídico"},
+  {ph:"Estruturação do Deal", n:"Modelo Financeiro v3 (definitivo)", crit:false, desc:"Inclui revolvência, caixa, triggers"},
+  {ph:"Estruturação do Deal", n:"Desenho dos fluxos operacional e financeiro", crit:false, desc:"Mapeamento das esteiras de cessão e cobrança"},
+  {ph:"Estruturação do Deal", n:"Testes de cessão em fundo warehouse", crit:false, desc:"Validação operacional pré-FIDC"},
+
+  // Documentação
+  {ph:"Documentação", n:"Aceite da proposta da Administradora", crit:false, desc:"Formalização contratual com ADM"},
+  {ph:"Documentação", n:"Elaboração do Regulamento do FIDC", crit:true, desc:"Documento principal — ADM + Gestora"},
+  {ph:"Documentação", n:"Critérios de elegibilidade dos direitos creditórios", crit:false, desc:"Definição dos ativos aceitos"},
+  {ph:"Documentação", n:"Condições de cessão", crit:false, desc:"Termos da transferência de DCs ao fundo"},
+  {ph:"Documentação", n:"Políticas de crédito", crit:false, desc:"Critérios de concessão pelo originador"},
+  {ph:"Documentação", n:"Políticas de cobrança", crit:false, desc:"Esteira de recuperação"},
+  {ph:"Documentação", n:"Contrato/Termo de Cessão (Gestora × Cedente)", crit:true, desc:"Instrumento jurídico da operação"},
+  {ph:"Documentação", n:"Acordos operacionais e Servicers", crit:false, desc:"Se houver prestadores adicionais"},
+  {ph:"Documentação", n:"IPC — Instrumento Particular de Constituição", crit:false, desc:"Modelo da Administradora"},
+  {ph:"Documentação", n:"Declaração de Prestadores de Serviços Essenciais", crit:false, desc:"Documento ADM"},
+  {ph:"Documentação", n:"Cadastro de Cotistas", crit:false, desc:"Onboarding dos investidores"},
+  {ph:"Documentação", n:"Cadastro do(s) Cedente(s)", crit:false, desc:"Onboarding do originador"},
+  {ph:"Documentação", n:"Definição da Registradora (CERC, B3...)", crit:false, desc:"Registro dos direitos creditórios"},
+  {ph:"Documentação", n:"Definição da Certificadora (portal de assinaturas)", crit:false, desc:"Plataforma de assinatura digital"},
+
+  // Implementação
+  {ph:"Implementação", n:"Conta corrente do fundo + acessos Internet Banking", crit:false, desc:"Setup bancário"},
+  {ph:"Implementação", n:"Fundo de Zeragem", crit:false, desc:"Conta operacional de overnight"},
+  {ph:"Implementação", n:"Conta nas clearings (CETIP, SELIC)", crit:false, desc:"Liquidação de ativos"},
+  {ph:"Implementação", n:"Setup do fundo na Registradora", crit:false, desc:"Cadastro técnico"},
+  {ph:"Implementação", n:"Setup da Certificadora", crit:false, desc:"Configuração de portais"},
+  {ph:"Implementação", n:"Criação do GIIN (FATCA)", crit:false, desc:"Identificador para reporte fiscal"},
+  {ph:"Implementação", n:"Criação do ISIN", crit:false, desc:"Código internacional do ativo"},
+  {ph:"Implementação", n:"Vínculo dos portais com usuários da Gestora", crit:false, desc:"Acessos operacionais"},
+  {ph:"Implementação", n:"Código da carteira", crit:false, desc:"Identificação interna"},
+  {ph:"Implementação", n:"Horários de aporte e liquidação com o custodiante", crit:false, desc:"Cronograma operacional"},
+
+  // Registro / Cadastro
+  {ph:"Registro / Cadastro", n:"Registro do fundo (CNPJ)", crit:false, desc:"Inscrição na Receita Federal"},
+  {ph:"Registro / Cadastro", n:"Registro CVM", crit:false, desc:"Aprovação do regulador"},
+  {ph:"Registro / Cadastro", n:"Registro da oferta (se houver)", crit:false, desc:"Se distribuição pública"},
+  {ph:"Registro / Cadastro", n:"Registro ANBIMA", crit:false, desc:"Selo de auto-regulação"},
+  {ph:"Registro / Cadastro", n:"Registro B3", crit:false, desc:"Negociação no mercado"},
+  {ph:"Registro / Cadastro", n:"BS / TA de Cotistas", crit:false, desc:"Boletins de subscrição"},
+  {ph:"Registro / Cadastro", n:"Comprovantes de aporte", crit:false, desc:"Documentação de capitalização"},
+
+  // Operações
+  {ph:"Operações", n:"Portabilidade (CCCB / cessão / endosso)", crit:false, desc:"Se houver transferência de carteira prévia"},
+  {ph:"Operações", n:"Primeiras cessões ao fundo", crit:false, desc:"Início das operações"},
+  {ph:"Operações", n:"Configuração de troca de arquivos (AWS, Nuvem)", crit:false, desc:"Integração de dados"},
+  {ph:"Operações", n:"Termos, assinaturas e APIs", crit:false, desc:"Conectores e formalização"},
+  {ph:"Operações", n:"Registro e guarda de documentos", crit:false, desc:"Arquivamento legal"},
+];
+
+function renderChecklist(){
+  const body = document.getElementById("ck_full");
+  let lastPhase = null;
+  body.innerHTML = checklistFull.map((it,i)=>{
+    let phaseHeader = "";
+    if(it.ph !== lastPhase){
+      phaseHeader = `<div class="check-phase">${it.ph.toLowerCase()}</div>`;
+      lastPhase = it.ph;
+    }
+    const done = S.checklistDone.includes(i);
+    const critCls = it.crit ? " critical" : "";
+    return phaseHeader + `<div class="check-item${done?' done':''}${critCls}" data-i="${i}">
+      <div class="check-box"></div>
+      <div class="check-content">
+        <div class="check-name">${it.n}</div>
+        <div class="check-desc" style="font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:2px">${it.desc}</div>
+      </div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#ck_full .check-item").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const i = parseInt(el.dataset.i);
+      const idx = S.checklistDone.indexOf(i);
+      if(idx === -1) S.checklistDone.push(i);
+      else S.checklistDone.splice(idx,1);
+      renderChecklist();
+    });
+  });
+  updateProgress();
+}
+function updateProgress(){
+  const all = checklistFull.length;
+  const done = S.checklistDone.length;
+  const pct = all>0 ? (done/all)*100 : 0;
+  document.getElementById("prog_num").textContent = Math.round(pct)+"%";
+  document.getElementById("prog_fill").style.width = pct+"%";
+  document.getElementById("prog_txt").textContent = done+" de "+all+" itens concluídos";
+
+  // Phase progress
+  const phases = {};
+  checklistFull.forEach((it,i)=>{
+    if(!phases[it.ph]) phases[it.ph] = {total:0, done:0};
+    phases[it.ph].total++;
+    if(S.checklistDone.includes(i)) phases[it.ph].done++;
+  });
+  document.getElementById("phase_progress").innerHTML = Object.entries(phases).map(([ph,d])=>{
+    const p = d.total>0 ? (d.done/d.total)*100 : 0;
+    return `<div>
+      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink-2);margin-bottom:4px;letter-spacing:.04em">
+        <span>${ph.toLowerCase()}</span>
+        <span>${d.done}/${d.total}</span>
+      </div>
+      <div class="progress"><div class="progress-fill" style="width:${p}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+/* ============================================================
+   PROPOSAL
+   ============================================================ */
+function generateProposal(){
+  const st = engine.structure(S);
+  const m = engine.monthly(S);
+  const totalOne = engine.feesOneTotal(S);
+  const totalRecM = engine.feesRecTotalMonthly(S);
+  const orig = document.getElementById("pr_orig").value || S.originador;
+  const fundo = document.getElementById("pr_fundo").value || S.fundo;
+  const data = document.getElementById("pr_data").value || S.prDate;
+  const ativo = document.getElementById("pr_ativo").value;
+  const adv = document.getElementById("pr_adv").value;
+  const obs = document.getElementById("pr_obs").value;
+
+  document.getElementById("prop_out").innerHTML = `
+    <h4>resumo executivo · ${data}</h4>
+    <p style="font-size:22px;font-family:var(--serif);font-weight:600">${fundo}</p>
+    <p style="color:var(--ink-2);font-style:italic">Originador: ${orig}</p>
+
+    <h4>estrutura do fundo</h4>
+    <dl class="pq">
+      <div><dt>tipo</dt><dd>FIDC Fechado · Investidor Qualificado</dd></div>
+      <div><dt>pl total</dt><dd>${fmtMM(st.pl)}</dd></div>
+      <div><dt>cotas sênior</dt><dd>${fmtMM(st.sen)} (${fmtPct(st.pctSen)}) — CDI+${S.ss}% a.a.</dd></div>
+      <div><dt>cotas mezanino</dt><dd>${fmtMM(st.mez)} (${fmtPct(S.pctMez)}) — CDI+${S.sm}% a.a.</dd></div>
+      ${st.mezEsp>0?`<div><dt>mez. especial</dt><dd>${fmtMM(st.mezEsp)} (${fmtPct(S.pctMezEsp)}) — CDI+${S.sme}% a.a.</dd></div>`:""}
+      <div><dt>sub júnior</dt><dd>${fmtMM(st.sub)} (${fmtPct(S.pctSub)})</dd></div>
+      <div><dt>ativo subjacente</dt><dd>${ativo}</dd></div>
+      <div><dt>assessor jurídico</dt><dd>${adv}</dd></div>
+    </dl>
+
+    <h4>resultado estimado · cota sub</h4>
+    <dl class="pq">
+      <div><dt>rentabilidade mensal</dt><dd>${fmtPct(m.rentSubAm*100)}</dd></div>
+      <div><dt>rentabilidade anual</dt><dd>${fmtPct(m.rentSubAa*100)}</dd></div>
+      <div><dt>% do cdi</dt><dd>${fmtBR(m.pctCdi, 0)}%</dd></div>
+      <div><dt>resultado mensal (r$)</dt><dd>${fmtMI(m.resSub)}</dd></div>
+    </dl>
+
+    <h4>premissas</h4>
+    <dl class="pq">
+      <div><dt>taxa dc</dt><dd>${fmtPct(S.dc)} a.m.</dd></div>
+      <div><dt>alocação em dc</dt><dd>${fmtPct(S.alc)}</dd></div>
+      <div><dt>pdd mensal</dt><dd>${fmtPct(S.pdd)} da carteira</dd></div>
+      <div><dt>cdi médio 24m (curva di)</dt><dd>${fmtPct(cdiMedio24()*100)} a.m.</dd></div>
+    </dl>
+
+    <h4>custos</h4>
+    <dl class="pq">
+      <div><dt>estruturação (one-time)</dt><dd>${fmtMI(totalOne)}</dd></div>
+      <div><dt>despesas recorrentes / mês</dt><dd>${fmtMI(totalRecM)}</dd></div>
+      <div><dt>despesas recorrentes / ano</dt><dd>${fmtMI(totalRecM*12)}</dd></div>
+      <div><dt>investimento 1º ano</dt><dd>${fmtMI(totalOne + totalRecM*12)}</dd></div>
+    </dl>
+
+    <h4>cronograma</h4>
+    <p>Estimativa de 14–18 semanas entre a assinatura da proposta e a primeira integralização do fundo, considerando mandato, non-deal roadshow, estruturação do deal, documentação, implementação e registro.</p>
+
+    <h4>observações</h4>
+    <p style="color:var(--ink-2);font-style:italic">${obs}</p>
+  `;
+}
+document.getElementById("btn_prop").addEventListener("click", generateProposal);
+
+/* ============================================================
+   IMPORT / EXPORT JSON
+   ============================================================ */
+document.getElementById("btn_export").addEventListener("click", ()=>{
+  const blob = new Blob([JSON.stringify(S, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0,16).replace(/[:T]/g,"-");
+  const nome = (S.fundo || "fidc").replace(/[^a-zA-Z0-9]/g,"_").toLowerCase();
+  a.href = url; a.download = `fidc_${nome}_${stamp}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast("projeto exportado", "ok");
+});
+document.getElementById("btn_import").addEventListener("click", ()=>{
+  document.getElementById("file_import").click();
+});
+document.getElementById("file_import").addEventListener("change", e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try{
+      const data = JSON.parse(ev.target.result);
+      Object.keys(data).forEach(k=>{ S[k] = data[k]; });
+      // Se o JSON traz uma curva DI, persistir no localStorage
+      if(data.diCurve && Array.isArray(data.diCurve)){
+        saveDIToStorage();
+      }
+      syncInputsFromState();
+      renderAll();
+      renderChecklist();
+      toast("projeto carregado: " + (S.fundo || "(sem nome)"), "ok");
+    } catch(err){
+      console.error(err);
+      toast("erro ao ler arquivo json", "error");
+    }
+    e.target.value = "";
+  };
+  reader.readAsText(file);
+});
+
+function syncInputsFromState(){
+  const map = {
+    i_pl:"pl", i_sub:"pctSub", i_mez:"pctMez", i_mezesp:"pctMezEsp",
+    i_ss:"ss", i_sm:"sm", i_sme:"sme", i_cdi:"cdi",
+    i_dc:"dc", i_alc:"alc", i_cx:"cx", i_pdd:"pdd", i_rec:"rec", i_wo:"wo",
+    i_orig:"orig",
+    i_invp:"invPeriod", i_cashmin:"cashMin",
+    i_ccb_p:"ccbP", i_ccb_t:"ccbT", i_ccb_n:"ccbN", i_ccb_car:"ccbCar",
+    i_ccb_ago:"ccbAgio", i_ccb_pp:"ccbPP", i_ccb_pps:"ccbPPStart"
+  };
+  Object.keys(map).forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && S[map[id]] !== undefined) el.value = S[map[id]];
+  });
+
+  // Labels
+  const setText = (id, v)=>{ const e = document.getElementById(id); if(e) e.textContent = v; };
+  setText("v_pl", "R$ "+S.pl+"MM");
+  setText("v_sub", fmtPct(S.pctSub));
+  setText("v_mez", fmtPct(S.pctMez));
+  setText("v_mezesp", fmtPct(S.pctMezEsp));
+  setText("v_ss", fmtPct(S.ss));
+  setText("v_sm", fmtPct(S.sm));
+  setText("v_sme", fmtPct(S.sme));
+  setText("v_cdi", fmtPct(S.cdi));
+  setText("v_dc", fmtPct(S.dc));
+  setText("v_alc", fmtPct(S.alc));
+  setText("v_cx", fmtPct(S.cx));
+  setText("v_pdd", fmtPct(S.pdd));
+  setText("v_rec", fmtPct(S.rec));
+  setText("v_wo", fmtPct(S.wo));
+  setText("v_orig", fmtPct(S.orig));
+  setText("v_invp", S.invPeriod + " meses");
+  setText("v_cashmin", fmtPct(S.cashMin));
+  setText("v_ccb_p", "R$ "+S.ccbP.toLocaleString("pt-BR"));
+  setText("v_ccb_t", fmtPct(S.ccbT));
+  setText("v_ccb_n", S.ccbN+" m");
+  setText("v_ccb_car", S.ccbCar+" m");
+  setText("v_ccb_ago", fmtPct(S.ccbAgio));
+  setText("v_ccb_pp", fmtPct(S.ccbPP));
+  setText("v_ccb_pps", (S.ccbPPStart||0)===0?"desligado":("mês "+S.ccbPPStart));
+
+  ["originador","fundo"].forEach(k=>{
+    const el = document.getElementById("i_"+k); if(el) el.value = S[k] || "";
+  });
+  ["gestor","consultor","adm","estruturador","legal","cob"].forEach(k=>{
+    const el = document.getElementById("s_"+k); if(el) el.value = S[k] || "";
+  });
+  const cd = document.getElementById("ccb_devedor"); if(cd) cd.value = S.ccbDev || "";
+  const cc = document.getElementById("ccb_credor"); if(cc) cc.value = S.ccbCred || "";
+  const cs = document.getElementById("i_ccb_sis"); if(cs) cs.value = S.ccbSis || "price";
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.getElementById("tabs").addEventListener("click", e=>{
+  const b = e.target.closest(".tab"); if(!b) return;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  document.getElementById(b.dataset.panel).classList.add("active");
+});
+
+/* ============================================================
+   RENDER ALL
+   ============================================================ */
+function renderAll(){
+  renderStructure();
+  renderModel();
+  renderFees();
+  renderCashflow();
+  renderSens();
+  renderCCB();
+  renderDI();
+
+  const prOrig = document.getElementById("pr_orig");
+  const prFundo = document.getElementById("pr_fundo");
+  const prData = document.getElementById("pr_data");
+  if(prOrig && !prOrig.value) prOrig.value = S.originador;
+  if(prFundo && !prFundo.value) prFundo.value = S.fundo;
+  if(prData && !prData.value) prData.value = S.prDate;
+}
+
+renderChecklist();
+// Carrega curva DI persistida (se houver) ANTES do primeiro render
+if(loadDIFromStorage()){
+  console.log("[fidc] curva DI carregada do localStorage");
+}
+renderAll();
+</script>
+</body>
+</html>
