@@ -633,10 +633,10 @@ input[type=file]{display:none}
 </header>
 
 <nav class="tabs" id="tabs">
-  <button class="tab active" data-panel="p1"><span class="num">01</span> estrutura</button>
-  <button class="tab" data-panel="p2"><span class="num">02</span> modelagem</button>
-  <button class="tab" data-panel="p3"><span class="num">03</span> fees &amp; custos</button>
-  <button class="tab" data-panel="p4"><span class="num">04</span> ccb</button>
+  <button class="tab active" data-panel="p4"><span class="num">01</span> DC</button>
+  <button class="tab" data-panel="p1"><span class="num">02</span> estrutura</button>
+  <button class="tab" data-panel="p2"><span class="num">03</span> modelagem</button>
+  <button class="tab" data-panel="p3"><span class="num">04</span> fees &amp; custos</button>
   <button class="tab" data-panel="p5"><span class="num">05</span> curva di</button>
   <button class="tab" data-panel="p6"><span class="num">06</span> fluxo &amp; gráficos</button>
   <button class="tab" data-panel="p7"><span class="num">07</span> sensibilidade</button>
@@ -647,7 +647,7 @@ input[type=file]{display:none}
 <main class="wrap">
 
 <!-- ========== ABA 1: ESTRUTURA ========== -->
-<section class="panel active" id="p1">
+<section class="panel" id="p1">
   <div class="panel-head">
     <h2>estrutura do <b>fundo</b></h2>
     <span class="pill">aba 01 — ciclo de vida &amp; subordinação</span>
@@ -661,28 +661,18 @@ input[type=file]{display:none}
       <!-- CICLO DE VIDA -->
       <div style="margin-bottom:22px">
         <div class="section-label">ciclo de vida</div>
-
         <div class="field">
           <div class="field-label"><span>período de investimento (meses)</span><span class="val" id="v_invp">12</span></div>
           <input type="range" id="i_invp" min="3" max="24" step="1" value="12">
         </div>
+      </div>
 
+      <!-- PL ALVO -->
+      <div style="margin-bottom:22px">
+        <div class="section-label">pl alvo</div>
         <div class="field">
-          <div class="field-label"><span>cap por captação (% do pl alvo)</span><span class="val" id="v_invcap">100%</span></div>
-          <input type="range" id="i_invcap" min="20" max="100" step="5" value="100">
-          <div class="note">a captação encerra quando atingir o nº de meses OU o % do PL alvo — o que vier primeiro. depois entra em cash sweep.</div>
-        </div>
-
-        <div class="field" style="display:flex;align-items:center;gap:10px;padding:10px 0">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--ink-2)">
-            <input type="checkbox" id="i_jrpp" checked>
-            <span>amortizar sub júnior <b style="color:var(--lime)">pari passu</b> com as demais</span>
-          </label>
-        </div>
-
-        <div class="field">
-          <div class="field-label"><span>caixa mínimo (% do pl alvo)</span><span class="val" id="v_cashmin">2,00%</span></div>
-          <input type="range" id="i_cashmin" min="0" max="10" step="0.5" value="2">
+          <div class="field-label"><span>pl alvo (r$)</span><span class="val" id="v_pl">R$ 100MM</span></div>
+          <input type="range" id="i_pl" min="20" max="500" step="5" value="100">
         </div>
       </div>
 
@@ -690,29 +680,16 @@ input[type=file]{display:none}
       <div style="margin-bottom:22px">
         <div class="section-label">volume &amp; subordinação</div>
         <div class="field">
-          <div class="field-label"><span>pl alvo (r$ mm)</span><span class="val" id="v_pl">R$ 100MM</span></div>
-          <input type="range" id="i_pl" min="20" max="500" step="5" value="100">
-        </div>
-        <div class="field">
-          <div class="field-label"><span>% sub júnior (mín)</span><span class="val" id="v_sub">20,00%</span></div>
-          <input type="range" id="i_sub" min="5" max="50" step="0.5" value="20">
+          <div class="field-label"><span>% cotas sênior</span><span class="val" id="v_sen">70,00%</span></div>
+          <input type="range" id="i_sen" min="0" max="99" step="0.5" value="70">
         </div>
         <div class="field">
           <div class="field-label"><span>% cotas mezanino</span><span class="val" id="v_mez">10,00%</span></div>
-          <input type="range" id="i_mez" min="0" max="50" step="0.5" value="10">
+          <input type="range" id="i_mez" min="0" max="99" step="0.5" value="10">
         </div>
-
-        <div class="field" style="padding:10px 0;border-top:1px dashed var(--line);margin-top:8px">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--ink-2)">
-            <input type="checkbox" id="i_mezb_enable">
-            <span>incluir cotas <b style="color:var(--mezesp)">mezanino B</b></span>
-          </label>
-        </div>
-        <div id="mezb_fields" style="display:none">
-          <div class="field">
-            <div class="field-label"><span>% mezanino B</span><span class="val" id="v_mezesp">0,00%</span></div>
-            <input type="range" id="i_mezesp" min="0" max="20" step="0.5" value="0">
-          </div>
+        <div class="field">
+          <div class="field-label"><span>% sub júnior</span><span class="val" id="v_sub">20,00%</span></div>
+          <input type="range" id="i_sub_derived" min="1" max="100" step="0.5" value="20" disabled style="opacity:.5">
         </div>
       </div>
 
@@ -792,44 +769,39 @@ input[type=file]{display:none}
         </div>
       </div>
 
-      <!-- DIAGRAMA -->
-      <div class="card">
-        <h3>diagrama de subordinação</h3>
-        <div class="card-sub">hierarquia de absorção de perdas</div>
-        <div class="waterfall">
-          <div class="wf-row">
-            <div class="wf-pri">1ª prioridade</div>
-            <div class="wf-bar senior">
-              <div><div class="name">Cotas Sênior</div><div class="desc">CDI + <span id="d_ss">5</span>% a.a.</div></div>
-              <div class="right"><div class="pct" id="d_pct_sen">—</div><div class="amt" id="d_amt_sen">—</div></div>
-            </div>
-          </div>
-          <div class="wf-arrow">↓ absorção primária</div>
-          <div class="wf-row">
-            <div class="wf-pri">2ª prioridade</div>
-            <div class="wf-bar mez">
-              <div><div class="name">Cotas Mezanino</div><div class="desc">CDI + <span id="d_sm">7</span>% a.a.</div></div>
-              <div class="right"><div class="pct" id="d_pct_mez">—</div><div class="amt" id="d_amt_mez">—</div></div>
-            </div>
-          </div>
-          <div class="wf-row" id="wf_mezesp_row">
-            <div class="wf-pri">↓ 3ª prioridade</div>
-            <div class="wf-bar mezesp">
-              <div><div class="name">Cotas Mezanino B</div><div class="desc">CDI + <span id="d_sme">9</span>% a.a.</div></div>
-              <div class="right"><div class="pct" id="d_pct_mezesp">—</div><div class="amt" id="d_amt_mezesp">—</div></div>
-            </div>
-          </div>
-          <div class="wf-arrow">↓</div>
-          <div class="wf-row">
-            <div class="wf-pri">última / perdas</div>
-            <div class="wf-bar sub">
-              <div><div class="name">Sub Júnior (Originador)</div><div class="desc">Resíduo · 1ª a absorver perdas</div></div>
-              <div class="right"><div class="pct" id="d_pct_sub">—</div><div class="amt" id="d_amt_sub">—</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
+    </div>
+  </div>
 
+  <!-- COMPRAS DE DCs E CARTEIRA (movido da aba DC) -->
+  <div class="grid g-2" style="margin-top:18px">
+    <div class="card">
+      <h3>compras de DCs pelo fundo</h3>
+      <div class="card-sub">quantos exemplares deste DC o fundo compra a cada mês, respeitando caixa mínimo</div>
+      <div class="tbl-wrap" style="margin-top:14px;max-height:520px;overflow-y:auto">
+        <table class="cf" id="ccb_compras_tbl">
+          <thead>
+            <tr>
+              <th>mês</th>
+              <th>fase</th>
+              <th>caixa disp.</th>
+              <th>qtd compradas</th>
+              <th>custo total</th>
+              <th>vp contrato</th>
+              <th>ágio pago</th>
+            </tr>
+          </thead>
+          <tbody id="ccb_compras_body"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>valor da carteira do fundo</h3>
+      <div class="card-sub">preço × quantidade ao longo do tempo (saldo dos DCs + recebíveis)</div>
+      <div class="chart-wrap tall"><svg class="chart-svg" id="ccb_carteira_chart" viewBox="0 0 600 320" preserveAspectRatio="none"></svg></div>
+      <div class="chart-legend">
+        <div class="leg"><div class="sw" style="background:var(--warn)"></div>saldo da carteira</div>
+        <div class="leg"><div class="sw" style="background:var(--lime)"></div>caixa do fundo</div>
+      </div>
     </div>
   </div>
 </section>
@@ -966,29 +938,15 @@ input[type=file]{display:none}
 </section>
 
 <!-- ========== ABA 4: CCB ========== -->
-<section class="panel" id="p4">
+<section class="panel active" id="p4">
   <div class="panel-head">
-    <h2>modelagem <b>CCB</b></h2>
-    <span class="pill">aba 04 — cédula de crédito bancário · ágio · pré-pagamento</span>
+    <h2>modelagem <b>direito creditório</b></h2>
+    <span class="pill">aba 01 — direito creditório · ágio · pré-pagamento</span>
   </div>
 
   <div class="grid g-12-8">
 
     <div class="card">
-      <div class="card-title">parâmetros da CCB</div>
-      <div class="card-sub">configure o exemplar para simulação</div>
-
-      <div style="margin-bottom:18px">
-        <div class="section-label">partes</div>
-        <div class="field">
-          <div class="field-label"><span>devedor / emitente</span></div>
-          <input type="text" id="ccb_devedor" value="Emitente S.A.">
-        </div>
-        <div class="field">
-          <div class="field-label"><span>credor / cessionário</span></div>
-          <input type="text" id="ccb_credor" value="FIDC / Banco">
-        </div>
-      </div>
 
       <div style="margin-bottom:18px">
         <div class="section-label">empréstimo</div>
@@ -1021,13 +979,19 @@ input[type=file]{display:none}
       <div style="margin-bottom:18px">
         <div class="section-label">ágio na cessão</div>
         <div class="field">
-          <div class="field-label"><span>ágio (% sobre VP do contrato)</span><span class="val" id="v_ccb_ago">0,00%</span></div>
-          <input type="range" id="i_ccb_ago" min="0" max="15" step="0.1" value="0">
-          <div style="margin-top:8px;padding:8px 10px;background:var(--bg-2);border-left:2px solid var(--lime);border-radius:0 2px 2px 0;font-family:var(--mono);font-size:11px">
-            <div style="color:var(--ink-3);font-size:10px;letter-spacing:.05em">vp pago pelo fundo</div>
-            <div style="color:var(--lime);font-weight:600;font-size:14px;margin-top:2px" id="v_ccb_vpcessao">R$ —</div>
+          <div class="field-label"><span>taxa de cessão (% a.m.)</span><span class="val" id="v_ccb_taxaces">2,20%</span></div>
+          <input type="range" id="i_ccb_taxaces" min="0.01" max="10" step="0.01" value="2.20">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+            <div style="padding:8px 10px;background:var(--bg-2);border-left:2px solid var(--lime);border-radius:0 2px 2px 0;font-family:var(--mono);font-size:11px">
+              <div style="color:var(--ink-3);font-size:10px;letter-spacing:.05em">vp pago pelo fundo</div>
+              <div style="color:var(--lime);font-weight:600;font-size:14px;margin-top:2px" id="v_ccb_vpcessao">R$ —</div>
+            </div>
+            <div style="padding:8px 10px;background:var(--bg-2);border-left:2px solid var(--warn);border-radius:0 2px 2px 0;font-family:var(--mono);font-size:11px">
+              <div style="color:var(--ink-3);font-size:10px;letter-spacing:.05em">ágio</div>
+              <div style="color:var(--warn);font-weight:600;font-size:14px;margin-top:2px" id="v_ccb_ago_pct">0,00%</div>
+            </div>
           </div>
-          <div class="note">ágio = (VP cessão / VP contrato) − 1. percentual cobrado pelo originador acima do valor do contrato. o fundo paga mais e seus juros acruados ficam relativamente menores. em caso de pré-pagamento, o CCB liquida pelo VP do contrato e o ágio é perdido.</div>
+          <div class="note">ágio: percentual cobrado pelo originador acima do valor de cessão, [(VP cessão / VP contrato) − 1].<br>Em caso de pré-pagamento, o DC liquida pelo valor corrente do contrato e parte do ágio é perdido.</div>
         </div>
       </div>
 
@@ -1043,6 +1007,10 @@ input[type=file]{display:none}
           <input type="range" id="i_ccb_pp" min="0" max="20" step="0.1" value="0">
           <div class="note">% do saldo devedor que pré-paga em cada mês a partir do mês inicial.</div>
         </div>
+        <div style="margin-top:14px;padding:12px 14px;background:var(--bg-2);border-left:3px solid var(--lime);border-radius:0 2px 2px 0">
+          <div style="font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--ink-3);text-transform:lowercase">TIR efetiva FIDC (a.m.) — variável-chave</div>
+          <div style="font-family:var(--mono);font-weight:700;font-size:22px;color:var(--lime);margin-top:4px" id="v_ccb_tir_am_hl">—</div>
+        </div>
       </div>
     </div>
 
@@ -1050,9 +1018,9 @@ input[type=file]{display:none}
 
       <div class="grid g-2">
         <div class="stat accent">
-          <div class="lbl">PMT 1º mês</div>
-          <div class="val" id="ccb_pmt1">—</div>
-          <div class="sub" id="ccb_pmt_desc">—</div>
+          <div class="lbl">TIR efetiva FIDC (a.m.)</div>
+          <div class="val mono" id="ccb_tir_aa" style="font-size:18px">—</div>
+          <div class="sub" id="ccb_tir">— a.a.</div>
         </div>
         <div class="stat">
           <div class="lbl">VP contrato</div>
@@ -1069,10 +1037,10 @@ input[type=file]{display:none}
           <div class="val mono" id="ccb_total" style="font-size:18px">—</div>
           <div class="sub" id="ccb_total_desc">—</div>
         </div>
-        <div class="stat ok">
-          <div class="lbl">TIR efetiva FIDC (a.a.)</div>
-          <div class="val mono" id="ccb_tir_aa" style="font-size:18px">—</div>
-          <div class="sub" id="ccb_tir">— a.m.</div>
+        <div class="stat">
+          <div class="lbl">taxa de cessão</div>
+          <div class="val mono" id="ccb_taxaces_val" style="font-size:18px">—</div>
+          <div class="sub">% a.m.</div>
         </div>
         <div class="stat">
           <div class="lbl">duration</div>
@@ -1119,38 +1087,6 @@ input[type=file]{display:none}
     <div class="note">price: PMT constante · sac: amortização constante · bullet: principal no fim · pré-pagamento: amortização extra linear a partir do mês definido — em pré-pagamento, o CCB liquida pelo valor do contrato e parte do ágio é perdida</div>
   </div>
 
-  <!-- COMPRAS DE DCs PELO FUNDO -->
-  <div class="grid g-2" style="margin-top:18px">
-    <div class="card">
-      <h3>compras de DCs pelo fundo</h3>
-      <div class="card-sub">quantos exemplares deste CCB o fundo compra a cada mês, respeitando caixa mínimo</div>
-      <div class="tbl-wrap" style="margin-top:14px;max-height:520px;overflow-y:auto">
-        <table class="cf" id="ccb_compras_tbl">
-          <thead>
-            <tr>
-              <th>mês</th>
-              <th>fase</th>
-              <th>caixa disp.</th>
-              <th>qtd compradas</th>
-              <th>custo total</th>
-              <th>vp contrato</th>
-              <th>ágio pago</th>
-            </tr>
-          </thead>
-          <tbody id="ccb_compras_body"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="card">
-      <h3>valor da carteira do fundo</h3>
-      <div class="card-sub">preço × quantidade ao longo do tempo (saldo dos DCs + recebíveis)</div>
-      <div class="chart-wrap tall"><svg class="chart-svg" id="ccb_carteira_chart" viewBox="0 0 600 320" preserveAspectRatio="none"></svg></div>
-      <div class="chart-legend">
-        <div class="leg"><div class="sw" style="background:var(--warn)"></div>saldo da carteira</div>
-        <div class="leg"><div class="sw" style="background:var(--lime)"></div>caixa do fundo</div>
-      </div>
-    </div>
-  </div>
 </section>
 
 <!-- ========== ABA 5: CURVA DI ========== -->
@@ -1171,12 +1107,18 @@ input[type=file]{display:none}
         <div class="note" style="margin-top:6px">baixe o csv "taxas referenciais bm&amp;fbovespa" e importe abaixo. a curva fica salva no navegador entre sessões.</div>
       </div>
 
-      <div style="display:flex;gap:8px;margin:14px 0;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;margin:14px 0 8px;flex-wrap:wrap;align-items:center">
         <button class="action-btn primary" id="btn_di_import_csv">↓ importar csv</button>
         <input type="file" id="file_di_csv" accept=".csv,.txt,text/csv">
         <button class="action-btn" id="btn_di_add">+ vértice</button>
         <button class="action-btn" id="btn_di_reset">↻ resetar</button>
-        <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--ink-3);align-self:center" id="di_meta_inline">—</span>
+      </div>
+      <div id="di_date_badge" style="display:inline-flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bg-2);border-left:3px solid var(--lime);border-radius:0 2px 2px 0;margin-bottom:12px">
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--ink-3);text-transform:lowercase" id="di_date_label">data da curva</div>
+          <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--lime)" id="di_date_val">—</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink-3)" id="di_meta_inline">—</div>
       </div>
 
       <table class="di-tbl" id="di_tbl">
@@ -1440,8 +1382,8 @@ input[type=file]{display:none}
    ============================================================ */
 const S = {
   originador:"", fundo:"",
-  pl:100, pctSub:20, pctMez:10, pctMezEsp:0,
-  mezBEnabled:false,       // checkbox: Mezanino B (renomeado de Mezanino Especial)
+  pl:100, pctSen:70, pctMez:10, pctMezEsp:0,
+  mezBEnabled:false,       // mezanino B desabilitado na UI; mantido para compatibilidade
   ss:5, sm:7, sme:9, cdi:14,
   gestor:"", adm:"", cust:"", cob:"", legal:"", consultor:"", estruturador:"",
   dc:2.20, alc:95, cx:90, pdd:0.15, rec:50, wo:0,
@@ -1468,8 +1410,9 @@ const S = {
   // CCB
   ccbDev:"Emitente S.A.", ccbCred:"FIDC / Banco",
   ccbP:100000, ccbT:2.20, ccbN:36, ccbCar:0, ccbSis:"price",
+  ccbTaxaCessao:2.20,     // taxa de cessão (% a.m.); máximo = ccbT
   ccbAgioSpread:0,        // spread adicional na taxa (legado, pode ser 0)
-  ccbAgio:0,              // ágio = markup VP cessão sobre VP contrato (0-15%)
+  ccbAgio:0,              // legado — derivado; mantido para compatibilidade com simulate
   ccbPP:0,                // % a.m. de pré-pagamento linear
   ccbPPStart:0,           // mês a partir do qual o pré-pagamento começa (0 = desligado)
   // === CICLO DE VIDA (fundo fechado) ===
@@ -1577,12 +1520,16 @@ function cdiMedio24(){
 const engine = {
   structure(s){
     const pl = s.pl * 1e6;
-    const sub = pl * s.pctSub/100;
-    const mez = pl * s.pctMez/100;
-    const mezEsp = pl * s.pctMezEsp/100;
-    const sen = pl - sub - mez - mezEsp;
+    const pctSen = Math.max(0, Math.min(99, s.pctSen ?? 70));
+    const pctMez = Math.max(0, s.pctMez || 0);
+    const pctMezEsp = s.mezBEnabled ? Math.max(0, s.pctMezEsp || 0) : 0;
+    const pctSub = Math.max(0, 100 - pctSen - pctMez - pctMezEsp);
+    const sen = pl * pctSen/100;
+    const mez = pl * pctMez/100;
+    const mezEsp = pl * pctMezEsp/100;
+    const sub = pl - sen - mez - mezEsp;
     return {pl, sen, mez, mezEsp, sub,
-      pctSen: sen/pl*100, pctMez: s.pctMez, pctMezEsp: s.pctMezEsp, pctSub: s.pctSub};
+      pctSen, pctMez, pctMezEsp, pctSub};
   },
 
   feesOneTotal(s){
@@ -1665,14 +1612,17 @@ const engine = {
   // CCB com ágio e pré-pagamento
   ccbSchedule(s){
     const P = s.ccbP;
-    const i = s.ccbT/100;               // taxa do contrato
+    const i = s.ccbT/100;               // taxa do contrato (originação)
     const n = s.ccbN;
     const carencia = s.ccbCar;
     const sis = s.ccbSis;
-    const agioMkup = (s.ccbAgio||0)/100;
+    // taxa de cessão: input do usuário, limitada à taxa de originação
+    const taxaCessao = Math.min(
+      Math.max((s.ccbTaxaCessao != null ? s.ccbTaxaCessao : s.ccbT) / 100, 0.0001),
+      i
+    );
     const ppStart = Math.max(0, parseInt(s.ccbPPStart||0));
     const ppPctMes = parseFloat(s.ccbPP||0)/100;
-    const valorPago = P * (1 + agioMkup);  // o que o fundo paga ao originador
 
     const rows = [];
     let saldo = P;
@@ -1713,6 +1663,11 @@ const engine = {
       rows.push({mes:k, ini, juros, amort, prepay, pmt, fim, pctPago:(P-fim)/P*100, obs});
       if(saldo <= 0.01) break;
     }
+
+    // VP cessão = PV dos PMTs descontado à taxa de cessão
+    let valorPago = 0;
+    rows.forEach((row, idx) => { valorPago += row.pmt / Math.pow(1 + taxaCessao, idx + 1); });
+    const agioMkup = valorPago / P - 1;  // derivado da taxa de cessão
 
     const totalPmt = rows.reduce((a,b)=>a+b.pmt, 0);
     const totalJuros = rows.reduce((a,b)=>a+b.juros, 0);
@@ -1767,7 +1722,7 @@ const engine = {
     }));
 
     return {rows, rowsCessao, totalPmt, totalJuros, totalAmort, dur,
-      valorPago, valorContrato: P, agioAbs: valorPago - P,
+      valorPago, valorContrato: P, agioAbs: valorPago - P, agioMkupPct: agioMkup * 100,
       taxaContrato: amToAa(i)*100,
       tirSemAgio: amToAa(tirSemAgio)*100,
       tirAm: tir*100,
@@ -1839,10 +1794,10 @@ const engine = {
      ============================================================ */
   simulate(s){
     const plAlvo = s.pl * 1e6;
-    const pctSub = s.pctSub/100;
-    const pctMez = s.pctMez/100;
-    const pctMezEsp = (s.mezBEnabled ? s.pctMezEsp : 0)/100;
-    const pctSen = 1 - pctSub - pctMez - pctMezEsp;
+    const pctSen = Math.max(0, Math.min(0.99, (s.pctSen ?? 70)/100));
+    const pctMez = Math.max(0, (s.pctMez || 0)/100);
+    const pctMezEsp = 0; // mezanino B desabilitado na UI
+    const pctSub = Math.max(0, 1 - pctSen - pctMez - pctMezEsp);
     const M = Math.max(1, Math.floor(s.invPeriod || 12));
     const capPct = (s.invCapPct || 100)/100;
     const cashMinPct = (s.cashMin || 0)/100;
@@ -2154,7 +2109,7 @@ bindRange("i_pl", "pl", v=>"R$ "+v+"MM");
 document.getElementById("i_pl").addEventListener("input", ()=>{
   recalcInitialRec();
 });
-bindRange("i_sub", "pctSub", v=>fmtPct(v));
+bindRange("i_sen", "pctSen", v=>fmtPct(v));
 bindRange("i_mez", "pctMez", v=>fmtPct(v));
 bindRange("i_mezesp", "pctMezEsp", v=>fmtPct(v));
 bindRange("i_ss", "ss", v=>fmtPct(v));
@@ -2172,31 +2127,14 @@ bindRange("i_invp", "invPeriod", v=>v+" meses");
 bindRange("i_invcap", "invCapPct", v=>v+"%");
 bindRange("i_cashmin", "cashMin", v=>fmtPct(v));
 
-// Checkbox: amortizar júnior pari passu
-document.getElementById("i_jrpp").addEventListener("change", e=>{
-  S.juniorPariPassu = e.target.checked;
-  renderAll();
-});
-
-// Checkbox: Mezanino B (Mezanino Especial)
-document.getElementById("i_mezb_enable").addEventListener("change", e=>{
-  S.mezBEnabled = e.target.checked;
-  document.getElementById("mezb_fields").style.display = e.target.checked ? "" : "none";
-  document.getElementById("sme_field").style.display = e.target.checked ? "" : "none";
-  document.getElementById("wf_mezesp_row").style.display = e.target.checked ? "" : "none";
-  if(!e.target.checked){
-    S.pctMezEsp = 0;
-    document.getElementById("i_mezesp").value = 0;
-    document.getElementById("v_mezesp").textContent = "0,00%";
-  }
-  renderAll();
-});
+// Checkbox pari passu (elemento removido da UI; mantém valor padrão true)
+{ const el = document.getElementById("i_jrpp"); if(el) el.addEventListener("change", e=>{ S.juniorPariPassu = e.target.checked; renderAll(); }); }
 
 bindRange("i_ccb_p", "ccbP", v=>"R$ "+v.toLocaleString("pt-BR"));
 bindRange("i_ccb_t", "ccbT", v=>fmtPct(v));
 bindRange("i_ccb_n", "ccbN", v=>v+" m");
 bindRange("i_ccb_car", "ccbCar", v=>v+" m");
-bindRange("i_ccb_ago", "ccbAgio", v=>fmtPct(v));
+bindRange("i_ccb_taxaces", "ccbTaxaCessao", v=>fmtPct(v));
 bindRange("i_ccb_pp", "ccbPP", v=>fmtPct(v));
 bindRange("i_ccb_pps", "ccbPPStart", v=>{
   if(v===0) return "desligado";
@@ -2209,15 +2147,14 @@ document.getElementById("i_ccb_sis").addEventListener("change", e=>{
   renderCCB();
 });
 
-["i_originador","i_fundo","s_gestor","s_consultor","s_adm","s_estruturador","s_legal","s_cob","ccb_devedor","ccb_credor"].forEach(id=>{
+["i_originador","i_fundo","s_gestor","s_consultor","s_adm","s_estruturador","s_legal","s_cob"].forEach(id=>{
   const el = document.getElementById(id);
   if(!el) return;
   el.addEventListener("input", e=>{
     const map = {
       i_originador:"originador", i_fundo:"fundo",
       s_gestor:"gestor", s_consultor:"consultor", s_adm:"adm",
-      s_estruturador:"estruturador", s_legal:"legal", s_cob:"cob",
-      ccb_devedor:"ccbDev", ccb_credor:"ccbCred"
+      s_estruturador:"estruturador", s_legal:"legal", s_cob:"cob"
     };
     S[map[id]] = e.target.value;
     if(["s_legal","s_estruturador"].includes(id)){
@@ -2258,38 +2195,43 @@ document.querySelectorAll(".sc-btn").forEach(b=>{
    RENDER STRUCTURE
    ============================================================ */
 function renderStructure(){
+  // Cap mezanino: máx = 99 − pctSen
+  const maxMez = Math.max(0, 99 - (S.pctSen ?? 0));
+  const mezSlider = document.getElementById("i_mez");
+  if(mezSlider){
+    mezSlider.max = maxMez;
+    if((S.pctMez || 0) > maxMez){
+      S.pctMez = maxMez;
+      mezSlider.value = maxMez;
+      const mezLbl = document.getElementById("v_mez");
+      if(mezLbl) mezLbl.textContent = fmtPct(maxMez);
+    }
+  }
+
   const st = engine.structure(S);
   const m = engine.monthly(S);
 
-  // Subordinação mínima vista de cada classe
-  // Sênior: (Mez + MezEsp + Sub) / PL — total que existe abaixo dela
-  // Mez: (MezEsp + Sub) / PL — subordinação efetiva à Mezanino
+  // Atualiza labels e slider júnior (derivado)
+  const elSubPct = document.getElementById("v_sub");
+  if(elSubPct) elSubPct.textContent = fmtPct(st.pctSub);
+  const elSenPct = document.getElementById("v_sen");
+  if(elSenPct) elSenPct.textContent = fmtPct(st.pctSen);
+  const subDerived = document.getElementById("i_sub_derived");
+  if(subDerived) subDerived.value = st.pctSub;
+
   const subSen = (st.mez + st.mezEsp + st.sub) / st.pl * 100;
   const subMez = (st.mezEsp + st.sub) / st.pl * 100;
 
   document.getElementById("r_pl_sen").textContent = fmtMM(st.sen);
   document.getElementById("r_pct_sen").textContent = `${fmtPct(st.pctSen)} do PL · sub mín. ${fmtPct(subSen)}`;
   document.getElementById("r_pl_mez").textContent = fmtMM(st.mez + st.mezEsp);
-  const pctMezTot = st.pctMez + (S.mezBEnabled ? st.pctMezEsp : 0);
-  document.getElementById("r_pct_mez").textContent = `${fmtPct(pctMezTot)} do PL · sub mín. ${fmtPct(subMez)}`;
+  document.getElementById("r_pct_mez").textContent = `${fmtPct(st.pctMez)} do PL · sub mín. ${fmtPct(subMez)}`;
   document.getElementById("r_pl_sub").textContent = fmtMM(st.sub);
   document.getElementById("r_pct_sub").textContent = `${fmtPct(st.pctSub)} do PL`;
   document.getElementById("r_rent_sub").textContent = fmtPct(m.rentSubAa*100);
   const cdiAnnRef = S.cdi/100;
   const pctCdi = cdiAnnRef > 0 ? (m.rentSubAa / cdiAnnRef) * 100 : 0;
   document.getElementById("r_rent_sub_sub").textContent = `${fmtBR(pctCdi,0)}% do CDI · a.a.`;
-
-  document.getElementById("d_ss").textContent = S.ss;
-  document.getElementById("d_sm").textContent = S.sm;
-  document.getElementById("d_sme").textContent = S.sme;
-  document.getElementById("d_pct_sen").textContent = fmtPct(st.pctSen);
-  document.getElementById("d_pct_mez").textContent = fmtPct(st.pctMez);
-  document.getElementById("d_pct_mezesp").textContent = fmtPct(st.pctMezEsp);
-  document.getElementById("d_pct_sub").textContent = fmtPct(st.pctSub);
-  document.getElementById("d_amt_sen").textContent = fmtMM(st.sen);
-  document.getElementById("d_amt_mez").textContent = fmtMM(st.mez);
-  document.getElementById("d_amt_mezesp").textContent = fmtMM(st.mezEsp);
-  document.getElementById("d_amt_sub").textContent = fmtMM(st.sub);
 }
 
 /* ============================================================
@@ -2806,8 +2748,17 @@ function renderCCB(){
   document.getElementById("v_ccb_t").textContent = fmtPct(S.ccbT);
   document.getElementById("v_ccb_n").textContent = S.ccbN + " m";
   document.getElementById("v_ccb_car").textContent = S.ccbCar + " m";
-  document.getElementById("v_ccb_ago").textContent = fmtPct(S.ccbAgio||0);
   document.getElementById("v_ccb_pp").textContent = fmtPct(S.ccbPP||0);
+
+  // Atualiza taxa de cessão: cap ao valor atual de originação
+  const cessaoSlider = document.getElementById("i_ccb_taxaces");
+  if(cessaoSlider){
+    cessaoSlider.max = S.ccbT;
+    if((S.ccbTaxaCessao||S.ccbT) > S.ccbT){ S.ccbTaxaCessao = S.ccbT; cessaoSlider.value = S.ccbT; }
+  }
+  const tcVal = S.ccbTaxaCessao != null ? S.ccbTaxaCessao : S.ccbT;
+  const tcEl = document.getElementById("v_ccb_taxaces");
+  if(tcEl) tcEl.textContent = fmtPct(tcVal);
 
   // Cap pré-pagamento ao prazo do empréstimo
   const ppMaxMes = Math.max(0, (S.ccbN || 36) - 1);
@@ -2828,18 +2779,24 @@ function renderCCB(){
   const r = engine.ccbSchedule(S);
 
   // === CARDS ===
-  document.getElementById("ccb_pmt1").textContent = fmtMoney(r.rows[0]?.pmt || 0);
-  document.getElementById("ccb_pmt_desc").textContent = S.ccbCar > 0 ? "(carência ativa)" : ({price:"price",sac:"sac",bullet:"bullet"})[S.ccbSis];
   document.getElementById("ccb_vp_contrato").textContent = fmtMoney(r.valorContrato);
   document.getElementById("ccb_vp_cessao").textContent = fmtMoney(r.valorPago);
   const vpInline = document.getElementById("v_ccb_vpcessao");
   if(vpInline) vpInline.textContent = fmtMoney(r.valorPago);
+  const agoPctEl = document.getElementById("v_ccb_ago_pct");
+  if(agoPctEl) agoPctEl.textContent = fmtPct(r.agioMkupPct);
   document.getElementById("ccb_agio_abs").textContent = "ágio " + fmtMoney(r.agioAbs);
   document.getElementById("ccb_total").textContent = fmtMoney(r.totalPmt);
-  document.getElementById("ccb_total_desc").textContent = "juros " + fmtMoney(r.totalJuros);
-  document.getElementById("ccb_tir_aa").textContent = fmtPct(r.tirAa);
-  document.getElementById("ccb_tir").textContent = fmtPct(r.tirAm) + " a.m.";
+  document.getElementById("ccb_total_desc").textContent = "juros " + fmtMoney(r.totalJuros) + " em " + S.ccbN + " meses";
+  document.getElementById("ccb_tir_aa").textContent = fmtPct(r.tirAm) + " a.m.";
+  document.getElementById("ccb_tir").textContent = fmtPct(r.tirAa) + " a.a.";
   document.getElementById("ccb_dur").textContent = fmtBR(r.dur, 1);
+  const tcStatEl = document.getElementById("ccb_taxaces_val");
+  if(tcStatEl) tcStatEl.textContent = fmtPct(tcVal);
+  const tirHl = document.getElementById("v_ccb_tir_am_hl");
+  if(tirHl) tirHl.textContent = fmtPct(r.tirAm) + " a.m.";
+  // Mantém ccbAgio sincronizado para o engine simulate
+  S.ccbAgio = r.agioMkupPct;
 
   // === TABELA EXEMPLAR ===
   document.getElementById("ccb_body").innerHTML = r.rows.map(row=>`
@@ -3011,13 +2968,29 @@ function fmtDateISO(iso){
    RENDER DI
    ============================================================ */
 function renderDI(){
-  // Metadata inline (substitui card "memória da curva")
+  // Data destaque e metadata
+  const dateVal = document.getElementById("di_date_val");
+  const dateLabel = document.getElementById("di_date_label");
   const meta = document.getElementById("di_meta_inline");
+  if(dateVal){
+    const fd = S.diMeta?.fileDate;   // YYYY-MM-DD extraído do filename
+    if(fd){
+      const [y,m,d] = fd.split("-");
+      dateVal.textContent = `${d}/${m}/${y}`;
+      if(dateLabel) dateLabel.textContent = "data da curva";
+    } else {
+      // fallback: hoje - 1 dia
+      const ontem = new Date(); ontem.setDate(ontem.getDate() - 1);
+      const dd = String(ontem.getDate()).padStart(2,"0");
+      const mm = String(ontem.getMonth()+1).padStart(2,"0");
+      const yy = ontem.getFullYear();
+      dateVal.textContent = `${dd}/${mm}/${yy}`;
+      if(dateLabel) dateLabel.textContent = "atualização";
+    }
+  }
   if(meta){
-    const updated = S.diMeta?.updatedAt ? fmtDateISO(S.diMeta.updatedAt) : "—";
     const fonte = S.diMeta?.fonte || "padrão";
-    const dataBase = S.diMeta?.dataBase || "";
-    meta.textContent = `${S.diCurve.length} vértices · ${fonte}${dataBase ? " · "+dataBase : ""} · ${updated}`;
+    meta.textContent = `${S.diCurve.length} vértices · ${fonte}`;
   }
 
   const body = document.getElementById("di_body");
@@ -3230,12 +3203,16 @@ document.getElementById("file_di_csv").addEventListener("change", e=>{
         toast("csv não reconhecido (precisa de 2+ linhas DI)", "error");
         return;
       }
-      // Dedupe e ordena
+      // Dedupe, limita a 10 anos (≈2520 DU) e ordena
       const map = new Map();
       parsed.forEach(p=> map.set(p.m, p.t));
-      S.diCurve = Array.from(map.entries()).map(([m,t])=>({m, t})).sort((a,b)=>a.m-b.m);
+      S.diCurve = Array.from(map.entries())
+        .map(([m,t])=>({m, t}))
+        .filter(({m}) => m <= 2520)
+        .sort((a,b)=>a.m-b.m);
       S.diMeta = {
         updatedAt: new Date().toISOString(),
+        fileDate: extractDateFromFilename(file.name),
         dataBase: extractDateFromCSV(txt) || S.diMeta?.dataBase || "",
         fonte: "b3 csv",
         filename: file.name
@@ -3322,6 +3299,17 @@ function parseB3CSV(txt){
 function extractDateFromCSV(txt){
   const m = txt.match(/(\d{2}\/\d{2}\/\d{4})/);
   return m ? m[1] : null;
+}
+
+// Extrai data YYYYMMDD do nome do arquivo (ex: AAPRE_DI_20260527.csv → "2026-05-27")
+function extractDateFromFilename(name){
+  const m = name.match(/(\d{8})/);
+  if(!m) return null;
+  const s = m[1];
+  const year = s.slice(0,4), month = s.slice(4,6), day = s.slice(6,8);
+  const d = new Date(parseInt(year), parseInt(month)-1, parseInt(day));
+  if(isNaN(d.getTime())) return null;
+  return `${year}-${month}-${day}`;
 }
 
 /* ============================================================
@@ -3494,7 +3482,7 @@ function generateProposal(){
       <div><dt>cotas sênior</dt><dd>${fmtMM(st.sen)} (${fmtPct(st.pctSen)}) — CDI+${S.ss}% a.a.</dd></div>
       <div><dt>cotas mezanino</dt><dd>${fmtMM(st.mez)} (${fmtPct(S.pctMez)}) — CDI+${S.sm}% a.a.</dd></div>
       ${st.mezEsp>0?`<div><dt>mez. especial</dt><dd>${fmtMM(st.mezEsp)} (${fmtPct(S.pctMezEsp)}) — CDI+${S.sme}% a.a.</dd></div>`:""}
-      <div><dt>sub júnior</dt><dd>${fmtMM(st.sub)} (${fmtPct(S.pctSub)})</dd></div>
+      <div><dt>sub júnior</dt><dd>${fmtMM(st.sub)} (${fmtPct(st.pctSub)})</dd></div>
       <div><dt>ativo subjacente</dt><dd>${ativo}</dd></div>
       <div><dt>assessor jurídico</dt><dd>${adv}</dd></div>
     </dl>
@@ -3575,13 +3563,13 @@ document.getElementById("file_import").addEventListener("change", e=>{
 
 function syncInputsFromState(){
   const map = {
-    i_pl:"pl", i_sub:"pctSub", i_mez:"pctMez", i_mezesp:"pctMezEsp",
+    i_pl:"pl", i_sen:"pctSen", i_mez:"pctMez", i_mezesp:"pctMezEsp",
     i_ss:"ss", i_sm:"sm", i_sme:"sme", i_cdi:"cdi",
     i_dc:"dc", i_alc:"alc", i_cx:"cx", i_pdd:"pdd", i_rec:"rec", i_wo:"wo",
     i_orig:"orig",
     i_invp:"invPeriod", i_cashmin:"cashMin",
     i_ccb_p:"ccbP", i_ccb_t:"ccbT", i_ccb_n:"ccbN", i_ccb_car:"ccbCar",
-    i_ccb_ago:"ccbAgio", i_ccb_pp:"ccbPP", i_ccb_pps:"ccbPPStart"
+    i_ccb_taxaces:"ccbTaxaCessao", i_ccb_pp:"ccbPP", i_ccb_pps:"ccbPPStart"
   };
   Object.keys(map).forEach(id=>{
     const el = document.getElementById(id);
@@ -3591,9 +3579,9 @@ function syncInputsFromState(){
   // Labels
   const setText = (id, v)=>{ const e = document.getElementById(id); if(e) e.textContent = v; };
   setText("v_pl", "R$ "+S.pl+"MM");
-  setText("v_sub", fmtPct(S.pctSub));
+  setText("v_sen", fmtPct(S.pctSen));
   setText("v_mez", fmtPct(S.pctMez));
-  setText("v_mezesp", fmtPct(S.pctMezEsp));
+  { const st = engine.structure(S); setText("v_sub", fmtPct(st.pctSub)); }
   setText("v_ss", fmtPct(S.ss));
   setText("v_sm", fmtPct(S.sm));
   setText("v_sme", fmtPct(S.sme));
@@ -3606,12 +3594,11 @@ function syncInputsFromState(){
   setText("v_wo", fmtPct(S.wo));
   setText("v_orig", fmtPct(S.orig));
   setText("v_invp", S.invPeriod + " meses");
-  setText("v_cashmin", fmtPct(S.cashMin));
   setText("v_ccb_p", "R$ "+S.ccbP.toLocaleString("pt-BR"));
   setText("v_ccb_t", fmtPct(S.ccbT));
   setText("v_ccb_n", S.ccbN+" m");
   setText("v_ccb_car", S.ccbCar+" m");
-  setText("v_ccb_ago", fmtPct(S.ccbAgio));
+  setText("v_ccb_taxaces", fmtPct(S.ccbTaxaCessao != null ? S.ccbTaxaCessao : S.ccbT));
   setText("v_ccb_pp", fmtPct(S.ccbPP));
   setText("v_ccb_pps", (S.ccbPPStart||0)===0?"desligado":("mês "+S.ccbPPStart));
 
@@ -3621,8 +3608,6 @@ function syncInputsFromState(){
   ["gestor","consultor","adm","estruturador","legal","cob"].forEach(k=>{
     const el = document.getElementById("s_"+k); if(el) el.value = S[k] || "";
   });
-  const cd = document.getElementById("ccb_devedor"); if(cd) cd.value = S.ccbDev || "";
-  const cc = document.getElementById("ccb_credor"); if(cc) cc.value = S.ccbCred || "";
   const cs = document.getElementById("i_ccb_sis"); if(cs) cs.value = S.ccbSis || "price";
 }
 
